@@ -2,14 +2,8 @@
     <div>
         <div class="search">
             <el-form :model="form" label-width="auto" style="max-width: 1200px">
-                <el-form-item label="岗位名称" prop="请选择面试状态">
-                    <el-input v-model="form.name" />
-                </el-form-item>
-                <el-form-item label="面试官编号">
-                    <el-input v-model="form.interviewerId" />
-                </el-form-item>
-                <el-form-item label="面试日期">
-                    <el-date-picker v-model="form.date" type="date" placeholder="选择日期" />
+                <el-form-item label="部门" prop="请输入部门">
+                    <el-input v-model="form.recDep" />
                 </el-form-item>
                 <el-form-item label="面试状态">
                     <el-select v-model="form.state" placeholder="请选择面试状态">
@@ -83,7 +77,7 @@
             </el-table>
             <el-pagination background layout="prev, pager, next" :total="filteredTableData.length" class="pagination" />
         </div>
-        
+
         <el-dialog v-model="dialogVisible" title="简历信息" width="500" :before-close="CloseDialog">
             <el-form :model="recruitForm" disabled label-width="80px" style="max-width: 1200px" class="resumeDialog">
                 <el-form-item label="姓名">
@@ -99,7 +93,7 @@
                     </el-select>
                 </el-form-item>
                 <el-form-item label="籍贯">
-                    <el-input v-model="recruitForm.hometown"  placeholder="请输入籍贯"/>
+                    <el-input v-model="recruitForm.hometown" placeholder="请输入籍贯" />
                 </el-form-item>
                 <el-form-item label="联系方式">
                     <el-input v-model="recruitForm.contact" placeholder="请输入联系方式" />
@@ -271,8 +265,15 @@ const filteredTableData = computed(() => {
         );
     });
 });
-const reviewOptions=['待筛选','审核未通过']
-const selectOptions=['面试意愿确认','筛选未通过']
+const options=ref({})
+options['6'] = [
+    { id: 3, val: '待筛选' },
+    { id: 4, val: '审核未通过' }
+]
+options['3'] = [
+    { id: 5, val: '面试意愿确认' },
+    { id: 4, val: '筛选未通过' }
+]
 
 const handleDetail = (row: any) => {
     // 实现查看简历详情的逻辑  
@@ -284,15 +285,15 @@ const handleEdit = (row: any) => {
     // 实现修改简历的逻辑  
     // alert(`修改简历: ${JSON.stringify(row)}`);
 };
-const loading=ref(true);
-onMounted(async() => {
+const loading = ref(true);
+onMounted(async () => {
 
     await getData();
 })
 async function getData() {
-    const roleId=user.role;
+    const roleId = user.role;
     // await 
-    loading.value=true
+    loading.value = true
 }
 
 const dialogVisible = ref(false);
@@ -348,13 +349,16 @@ const recruitForm = reactive({
     float: right;
     margin-top: 20px;
 }
-/deep/ .resumeDialog .el-form-item__content{
-  width: 100%;
+
+/deep/ .resumeDialog .el-form-item__content {
+    width: 100%;
 }
-/deep/ .el-dialog__footer{
+
+/deep/ .el-dialog__footer {
     padding-top: 0;
 }
-/deep/ .el-form-item{
+
+/deep/ .el-form-item {
     width: 100%;
 }
 </style>
