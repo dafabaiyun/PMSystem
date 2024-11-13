@@ -17,7 +17,13 @@
                         <el-icon>
                             <location />
                         </el-icon>
-                        <span>面试信息</span>
+                        <span>简历管理</span>
+                    </el-menu-item>
+                    <el-menu-item index="/directory/interview">
+                        <el-icon>
+                            <location />
+                        </el-icon>
+                        <span>面试管理</span>
                     </el-menu-item>
                     <!-- <el-sub-menu index="2">
                         <template #title>
@@ -51,6 +57,7 @@
             </el-aside>
             <el-container>
                 <el-header>
+                    <el-button type="primary" @click="attend" :disabled="disabled">签到</el-button>
                     <div class="user-info">
                         <img src="../assets/index.webp" alt="用户头像" class="avatar">
                         <span class="name">用户名称</span>
@@ -66,7 +73,11 @@ import { ref } from 'vue';
 import { useUserStore } from '../stores/user';
 import { Role } from '@/api/user';
 const { user } = useUserStore()
-// 假设这是从登录状态或API获取的用户信息  
+const disabled=ref(false);
+async function attend() {
+    // await // 签到接口
+    disabled.value=true;
+}
 
 </script>
 

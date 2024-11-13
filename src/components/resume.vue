@@ -26,66 +26,52 @@
             </el-form>
         </div>
         <div class="table">
-            <el-table :data="filteredTableData" style="width: 100%">
-                <el-table-column fixed prop="name" label="姓名" width="120" />
-                <el-table-column prop="interviewNumber" label="面试编号" width="100" />
-                <el-table-column prop="date" label="面试日期" width="150" />
-                <el-table-column prop="location" label="面试地点" width="120" />
-                <el-table-column prop="education" label="最高学历" width="120">
+            <el-table :data="tableData" style="width: 100%">
+                <el-table-column prop="resName" label="姓名" width="120" />
+                <el-table-column prop="resAge" label="年龄" width="120" />
+                <el-table-column prop="resSex" label="性别" width="120" />
+                <el-table-column prop="resPhone" label="联系方式" width="120" />
+                <el-table-column prop="resEdu" label="最高学历" width="120" />
+                <el-table-column prop="recJob" label="应聘岗位" width="100" />
+                <el-table-column prop="recDep" label="部门" width="150" />
+                <el-table-column prop="resStatus" label="状态" width="120">
                     <template #default="scope">
-                        <el-input v-model="scope.row.education" size="small" placeholder="请输入学历" readonly />
+                        <span>{{ Status[scope.row.resStatus] }}</span>
                     </template>
                 </el-table-column>
-                <el-table-column prop="position" label="应聘岗位" width="150">
+                <!-- <el-table-column fixed="right" prop="resStatus" label="状态" width="120">
                     <template #default="scope">
-                        <el-input v-model="scope.row.position" size="small" placeholder="请输入岗位" readonly />
-                    </template>
-                </el-table-column>
-                <el-table-column prop="interviewStage" label="面试阶段" width="120">
-                    <template #default="scope">
-                        <el-select v-model="scope.row.interviewStage" placeholder="请选择面试阶段" size="small" disabled>
-                            <el-option label="初试" value="first_round" />
-                            <el-option label="复试" value="second_round" />
-                            <el-option label="终试" value="final_round" />
+                        <el-select v-model="scope.row.resStatus" placeholder="请修改简历状态" size="small" @change="changeStatus">
+                            <el-option v-for="item in options[user.role] || []" :label="item.val" :value="item.id" />
                         </el-select>
                     </template>
-                </el-table-column>
-                <el-table-column prop="state" label="面试状态" width="120">
-                    <template #default="scope">
-                        <el-select v-model="scope.row.state" placeholder="请选择面试状态" size="small" disabled>
-                            <el-option label="待面试" value="pending" />
-                            <el-option label="面试中" value="in_progress" />
-                            <el-option label="已通过" value="passed" />
-                            <el-option label="未通过" value="failed" />
-                        </el-select>
-                    </template>
-                </el-table-column>
-                <el-table-column prop="interviewType" label="面试类型" width="120">
-                    <template #default="scope">
-                        <el-select v-model="scope.row.interviewType" placeholder="请选择面试类型" size="small" disabled>
-                            <el-option label="线下面试" value="offline" />
-                            <el-option label="视频面试" value="video" />
-                            <el-option label="电话面试" value="phone" />
-                        </el-select>
-                    </template>
-                </el-table-column>
-                <el-table-column prop="interviewerId" label="面试官编号" width="120" />
-                <el-table-column prop="resumeId" label="简历编号" width="120" />
-                <el-table-column prop="city" label="城市" width="120" />
-                <el-table-column prop="address" label="地址" width="600" />
-                <el-table-column prop="zip" label="邮编" width="120" />
+                </el-table-column> -->
                 <el-table-column fixed="right" label="操作" min-width="200">
                     <template #default="scope">
                         <el-button type="primary" size="small" @click="handleDetail(scope.row)">查看简历</el-button>
-                        <!-- <el-button type="primary" size="small" @click="handleEdit(scope.row)">修改</el-button> -->
+                    </template>
+                </el-table-column>
+                <el-table-column fixed="right" label="审核结果" min-width="200"
+                    v-if="user.role === ['应聘者'] && recruitForm.resStatus === Status['面试意愿确认']">
+                    <template #default="scope">
+                        <el-button type="primary" size="small" @click="agree(scope.row.resNo, true)">同意</el-button>
+                        <el-button type="primary" size="small" @click="agree(scope.row.resNo, false)">拒绝</el-button>
+                    </template>
+                </el-table-column>
+                <el-table-column fixed="right" label="审核结果" min-width="200" v-if="user.role !== ['应聘者']">
+                    <template #default="scope">
+                        <el-button type="primary" size="small" @click="pass(scope.row.resNo, true)">通过</el-button>
+                        <el-button type="primary" size="small" @click="pass(scope.row.resNo, false)">不通过</el-button>
                     </template>
                 </el-table-column>
             </el-table>
-            <el-pagination background layout="prev, pager, next" :total="filteredTableData.length" class="pagination" />
+            <el-pagination background layout="prev, pager, next" :total="tableData.length" class="pagination" />
         </div>
-        
+
         <el-dialog v-model="dialogVisible" title="简历信息" width="500" :before-close="CloseDialog">
-            <el-form :model="recruitForm" disabled label-width="80px" style="max-width: 1200px" class="resumeDialog">
+            <el-form :model="recruitForm"
+                :disabled="(user.role === ['应聘者'] && recruitForm.resStatus === Status['审核未通过']) ? false : true"
+                label-width="80px" style="max-width: 1200px" class="resumeDialog">
                 <el-form-item label="姓名">
                     <el-input v-model="recruitForm.name" placeholder="请输入姓名" />
                 </el-form-item>
@@ -99,7 +85,7 @@
                     </el-select>
                 </el-form-item>
                 <el-form-item label="籍贯">
-                    <el-input v-model="recruitForm.hometown"  placeholder="请输入籍贯"/>
+                    <el-input v-model="recruitForm.hometown" placeholder="请输入籍贯" />
                 </el-form-item>
                 <el-form-item label="联系方式">
                     <el-input v-model="recruitForm.contact" placeholder="请输入联系方式" />
@@ -118,6 +104,14 @@
                 <el-form-item label="证书技能">
                     <el-input type="textarea" v-model="recruitForm.certificatesSkills" placeholder="请输入证书和技能" />
                 </el-form-item>
+                <template #footer v-if="user.role === ['应聘者'] && recruitForm.resStatus === Status['审核未通过']">
+                    <div class="dialog-footer">
+                        <el-button @click="dialogVisible = false">取消</el-button>
+                        <el-button type="primary" @click="submit">
+                            确认修改
+                        </el-button>
+                    </div>
+                </template>
             </el-form>
         </el-dialog>
     </div>
@@ -127,7 +121,7 @@
 import { reactive, computed, onMounted, ref } from 'vue';
 
 import { useUserStore } from '../stores/user';
-import { Role } from '@/api/user';
+import { Role, Status } from '@/api/user';
 const { user } = useUserStore()
 const form = reactive({
     name: '',
@@ -271,8 +265,15 @@ const filteredTableData = computed(() => {
         );
     });
 });
-const reviewOptions=['待筛选','审核未通过']
-const selectOptions=['面试意愿确认','筛选未通过']
+// const options=ref({} as {[key:string]:[]})
+// options[6]= [
+//     { id: 3, val: '待筛选' },
+//     { id: 2, val: '审核未通过' }
+// ]
+// options[3] = [
+//     { id: 5, val: '面试意愿确认' },
+//     { id: 4, val: '筛选未通过' }
+// ]
 
 const handleDetail = (row: any) => {
     // 实现查看简历详情的逻辑  
@@ -284,15 +285,15 @@ const handleEdit = (row: any) => {
     // 实现修改简历的逻辑  
     // alert(`修改简历: ${JSON.stringify(row)}`);
 };
-const loading=ref(true);
-onMounted(async() => {
+const loading = ref(true);
+onMounted(async () => {
 
     await getData();
 })
 async function getData() {
-    const roleId=user.role;
-    // await 
-    loading.value=true
+    const roleId = user.role;
+    // tableData.value=await 
+    loading.value = false
 }
 
 const dialogVisible = ref(false);
@@ -312,6 +313,30 @@ const recruitForm = reactive({
     internship: '',
     certificatesSkills: ''
 })
+const resumeStatus = ref();
+function getStatus(row) {
+    resumeStatus.value = row.resStatus;
+}
+async function pass(resNo, passFlag) {
+    loading.value = true;
+    if (user.role === Role['招聘助理']) {
+        // 调用审核接口
+        passFlag ? await sh({ resNo, resStatus: Status['待筛选'] }) : await sh({ resNo, resStatus: Status['审核未通过'] })
+    }
+    else if (user.role === Role['人事专员']) {
+        // 调用筛选接口
+        passFlag ? await sh({ resNo, resStatus: Status['面试意愿确认'] }) : await sh({ resNo, resStatus: Status['筛选未通过'] })
+    }
+    tableData.value = await getData();
+}
+async function agree(resNo, agreeFlag) {
+    loading.value = true;
+    agreeFlag ? await sh({ resNo, resStatus: Status['已同意面试'] }) : await sh({ resNo, resStatus: Status['已拒绝面试'] })
+    tableData.value = await getData();
+}
+function submit() {
+    // await submitResume(recruitForm) //提交简历接口
+}
 </script>
 
 <style scoped>
@@ -348,13 +373,16 @@ const recruitForm = reactive({
     float: right;
     margin-top: 20px;
 }
-/deep/ .resumeDialog .el-form-item__content{
-  width: 100%;
+
+/deep/ .resumeDialog .el-form-item__content {
+    width: 100%;
 }
-/deep/ .el-dialog__footer{
+
+/deep/ .el-dialog__footer {
     padding-top: 0;
 }
-/deep/ .el-form-item{
+
+/deep/ .el-form-item {
     width: 100%;
 }
 </style>

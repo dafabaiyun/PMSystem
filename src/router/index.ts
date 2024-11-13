@@ -35,6 +35,10 @@ const router = createRouter({
           path: "userManage",
           component: () => import("../components/userManage.vue"),
         },
+        {
+          path: "interview",
+          component: () => import("../components/interview.vue"),
+        },
       ],
     },
   ],
