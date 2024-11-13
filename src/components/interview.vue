@@ -1,16 +1,19 @@
 <template>
     <div>
-        <div class="search">
+        <div class="search" v-if="user.role===Role['人事专员']">
             <el-form :model="form" label-width="auto" style="max-width: 1200px">
-                <el-form-item label="部门" prop="请输入部门">
+                <!-- <el-form-item label="部门" prop="请输入部门">
                     <el-input v-model="form.recDep" />
-                </el-form-item>
+                </el-form-item> -->
+                <!-- <el-form-item label="面试阶段" prop="请输入面试阶段">
+                    <el-input v-model="form.interPeriod" />
+                </el-form-item> -->
                 <el-form-item label="面试状态">
-                    <el-select v-model="form.state" placeholder="请选择面试状态">
-                        <el-option label="待面试" value="pending" />
-                        <el-option label="面试中" value="in_progress" />
-                        <el-option label="已通过" value="passed" />
-                        <el-option label="未通过" value="failed" />
+                    <el-select v-model="form.interStatus" placeholder="请选择面试状态">
+                        <el-option label="待面试" value="1" />
+                        <el-option label="未通过" value="2" />
+                        <el-option label="已通过面试" value="3" />
+                        <el-option label="已发录用函" value="4" />
                     </el-select>
                 </el-form-item>
                 <el-form-item>
@@ -21,93 +24,36 @@
         </div>
         <div class="table">
             <el-table :data="tableData" style="width: 100%">
-                <el-table-column prop="resName" label="姓名" width="120" />
-                <el-table-column prop="resAge" label="年龄" width="120" />
-                <el-table-column prop="resSex" label="性别" width="120" />
-                <el-table-column prop="resPhone" label="联系方式" width="120" />
-                <el-table-column prop="resEdu" label="最高学历" width="120" />
-                <el-table-column prop="recJob" label="应聘岗位" width="100" />
-                <el-table-column prop="recDep" label="部门" width="150" />
-                <el-table-column prop="resStatus" label="状态" width="120">
+                <el-table-column fixed prop="name" label="姓名" width="120" />
+                <el-table-column prop="resPhone" label="面试电话" width="100" />
+                <el-table-column prop="interTime" label="面试时间" width="150" />
+                <el-table-column prop="interDest" label="面试地点" width="120" />
+                <el-table-column prop="interPeriod" label="面试阶段" width="120">
                     <template #default="scope">
-                        <span>{{ Status[scope.row.resStatus] }}</span>
+                        <span>{{ Period[scope.row.interPeriod] }}</span>
                     </template>
                 </el-table-column>
-                <!-- <el-table-column fixed="right" prop="resStatus" label="状态" width="120">
+                <el-table-column prop="interStatus" label="面试状态" width="120">
                     <template #default="scope">
-                        <el-select v-model="scope.row.resStatus" placeholder="请修改简历状态" size="small" @change="changeStatus">
-                            <el-option v-for="item in options[user.role] || []" :label="item.val" :value="item.id" />
-                        </el-select>
-                    </template>
-                </el-table-column> -->
-                <el-table-column fixed="right" label="操作" min-width="200">
-                    <template #default="scope">
-                        <el-button type="primary" size="small" @click="handleDetail(scope.row)">查看简历</el-button>
+                        <span>{{ InterStatus[scope.row.interStatus] }}</span>
                     </template>
                 </el-table-column>
-                <el-table-column fixed="right" label="审核结果" min-width="200"
-                    v-if="user.role === ['应聘者'] && recruitForm.resStatus === Status['面试意愿确认']">
+                <el-table-column prop="interType" label="面试类型" width="120">
+                </el-table-column>
+                <el-table-column fixed="right" label="操作" min-width="200" v-if="scope.row.interStatus===Status['已通过面试']">
                     <template #default="scope">
-                        <el-button type="primary" size="small" @click="agree(scope.row.resNo, true)">同意</el-button>
-                        <el-button type="primary" size="small" @click="agree(scope.row.resNo, false)">拒绝</el-button>
+                        <el-button type="primary" size="small" @click="send(scope.row.interNo)">发送录用通知</el-button>
                     </template>
                 </el-table-column>
-                <el-table-column fixed="right" label="审核结果" min-width="200" v-if="user.role !== ['应聘者']">
+                <el-table-column fixed="right" label="操作" min-width="200" v-else>
                     <template #default="scope">
-                        <el-button type="primary" size="small" @click="pass(scope.row.resNo, true)">通过</el-button>
-                        <el-button type="primary" size="small" @click="pass(scope.row.resNo, false)">不通过</el-button>
+                        <el-button type="primary" size="small" @click="pass(scope.row.interNo, true)">通过</el-button>
+                        <el-button type="primary" size="small" @click="pass(scope.row.interNo, false)">不通过</el-button>
                     </template>
                 </el-table-column>
             </el-table>
             <el-pagination background layout="prev, pager, next" :total="tableData.length" class="pagination" />
         </div>
-
-        <el-dialog v-model="dialogVisible" title="简历信息" width="500" :before-close="CloseDialog">
-            <el-form :model="recruitForm"
-                :disabled="(user.role === ['应聘者'] && recruitForm.resStatus === Status['审核未通过']) ? false : true"
-                label-width="80px" style="max-width: 1200px" class="resumeDialog">
-                <el-form-item label="姓名">
-                    <el-input v-model="recruitForm.name" placeholder="请输入姓名" />
-                </el-form-item>
-                <el-form-item label="年龄">
-                    <el-input v-model.number="recruitForm.age" type="number" placeholder="请输入年龄" />
-                </el-form-item>
-                <el-form-item label="性别">
-                    <el-select v-model="recruitForm.gender" placeholder="请选择性别">
-                        <el-option label="男" value="male" />
-                        <el-option label="女" value="female" />
-                    </el-select>
-                </el-form-item>
-                <el-form-item label="籍贯">
-                    <el-input v-model="recruitForm.hometown" placeholder="请输入籍贯" />
-                </el-form-item>
-                <el-form-item label="联系方式">
-                    <el-input v-model="recruitForm.contact" placeholder="请输入联系方式" />
-                </el-form-item>
-                <el-form-item label="最高学历">
-                    <el-select v-model="recruitForm.education" placeholder="请选择最高学历">
-                        <el-option label="专科" value="high_school" />
-                        <el-option label="本科" value="bachelor" />
-                        <el-option label="硕士" value="master" />
-                        <el-option label="博士" value="doctorate" />
-                    </el-select>
-                </el-form-item>
-                <el-form-item label="实习经历">
-                    <el-input type="textarea" v-model="recruitForm.internship" placeholder="请输入实习经历" />
-                </el-form-item>
-                <el-form-item label="证书技能">
-                    <el-input type="textarea" v-model="recruitForm.certificatesSkills" placeholder="请输入证书和技能" />
-                </el-form-item>
-                <template #footer v-if="user.role === ['应聘者'] && recruitForm.resStatus === Status['审核未通过']">
-                    <div class="dialog-footer">
-                        <el-button @click="dialogVisible = false">取消</el-button>
-                        <el-button type="primary" @click="submit">
-                            确认修改
-                        </el-button>
-                    </div>
-                </template>
-            </el-form>
-        </el-dialog>
     </div>
 </template>
 
@@ -115,13 +61,10 @@
 import { reactive, computed, onMounted, ref } from 'vue';
 
 import { useUserStore } from '../stores/user';
-import { Role, Status } from '@/api/user';
+import { Role,Period,InterStatus } from '@/api/user';
 const { user } = useUserStore()
 const form = reactive({
-    name: '',
-    interviewerId: '',
-    date: '',
-    state: '',
+    interStatus: '',
 });
 
 const tableData = reactive([
@@ -259,17 +202,10 @@ const filteredTableData = computed(() => {
         );
     });
 });
-// const options=ref({} as {[key:string]:[]})
-// options[6]= [
-//     { id: 3, val: '待筛选' },
-//     { id: 2, val: '审核未通过' }
-// ]
-// options[3] = [
-//     { id: 5, val: '面试意愿确认' },
-//     { id: 4, val: '筛选未通过' }
-// ]
+const reviewOptions = ['待筛选', '审核未通过']
+const selectOptions = ['面试意愿确认', '筛选未通过']
 
-const handleDetail = (row: any) => {
+const handleDetail = (resNo: any) => {
     // 实现查看简历详情的逻辑  
     // alert(`查看简历详情: ${JSON.stringify(row)}`);查看简历
     dialogVisible.value = true;
@@ -279,6 +215,23 @@ const handleEdit = (row: any) => {
     // 实现修改简历的逻辑  
     // alert(`修改简历: ${JSON.stringify(row)}`);
 };
+
+async function pass(interNo, passFlag) {
+    loading.value = true;
+    if (user.role === Role['部门主管']) {
+        // 调用审核接口
+        passFlag ? await sh({ interNo, interPeriod: Period['三面'] }) : await sh({ interNo, interStatus: Status['未通过'] })
+    }
+    else if (user.role === Role['人事专员']) {
+        // 调用筛选接口
+        passFlag ? await sh({ interNo, interPeriod: Period['二面'] }) : await sh({ interNo, interStatus: Status['未通过'] })
+    }
+    else{
+        passFlag ? await sh({ interNo, interStatus: Status['已通过面试'] }) : await sh({ interNo, interStatus: Status['未通过'] })
+
+    }
+    tableData.value = await getData();
+}
 const loading = ref(true);
 onMounted(async () => {
 
@@ -286,8 +239,8 @@ onMounted(async () => {
 })
 async function getData() {
     const roleId = user.role;
-    // tableData.value=await 
-    loading.value = false
+    // await 
+    loading.value = true
 }
 
 const dialogVisible = ref(false);
@@ -307,29 +260,10 @@ const recruitForm = reactive({
     internship: '',
     certificatesSkills: ''
 })
-const resumeStatus = ref();
-function getStatus(row) {
-    resumeStatus.value = row.resStatus;
-}
-async function pass(resNo, passFlag) {
-    loading.value = true;
-    if (user.role === Role['招聘助理']) {
-        // 调用审核接口
-        passFlag ? await sh({ resNo, resStatus: Status['待筛选'] }) : await sh({ resNo, resStatus: Status['审核未通过'] })
-    }
-    else if (user.role === Role['人事专员']) {
-        // 调用筛选接口
-        passFlag ? await sh({ resNo, resStatus: Status['面试意愿确认'] }) : await sh({ resNo, resStatus: Status['筛选未通过'] })
-    }
+function send(interNo){
+    loading.value=true;
+    await sh({ interNo, interStatus: Status['已发录用函'] })
     tableData.value = await getData();
-}
-async function agree(resNo, agreeFlag) {
-    loading.value = true;
-    agreeFlag ? await sh({ resNo, resStatus: Status['已同意面试'] }) : await sh({ resNo, resStatus: Status['已拒绝面试'] })
-    tableData.value = await getData();
-}
-function submit() {
-    // await submitResume(recruitForm) //提交简历接口
 }
 </script>
 

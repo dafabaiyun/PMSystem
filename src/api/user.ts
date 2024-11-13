@@ -10,6 +10,31 @@ export enum Role {
   "招聘助理",
   "应聘者",
 }
+export enum Status{
+  "待审核"=1,
+  "审核未通过",
+  "待筛选",
+  "筛选未通过",
+  "面试意愿确认",
+  "已同意面试",
+  "已拒绝面试",
+}
+export enum Period{
+  "一面"=1,
+  "二面",
+  "三面",
+}
+export enum InterStatus{
+  "待面试"=1,
+  "未通过",
+  "已通过面试",
+  "已发录用函",
+}
+export enum InterType{
+  "线下面试"=1,
+  "视频面试",
+  "电话面试",
+}
 export const userRegisterServe = ({ userid,psw }) => {
   return axios.post("http://localhost:8081/user/createNewUser", { userid,psw })
   .then(res=>res.data)
