@@ -20,7 +20,11 @@
         <div class="table">
             <el-table :data="tableData" style="width: 100%" v-loading="load">
                 <el-table-column prop="userid" label="账号" width="120" />
-                <el-table-column prop="sname" label="姓名" width="120" />
+                <el-table-column prop="sname" label="姓名" width="120" >
+                    <template #default="scope">
+                        {{ scope.row.sname || '-' }}
+                    </template>
+                </el-table-column>
                 <el-table-column prop="sdep" label="所属部门" width="150">
                     <template #default="scope">
                         {{ scope.row.sdep || '-' }}
@@ -207,6 +211,9 @@ function deleteRole(row) {
 const deleteUserVisible=ref(false);
 const deletedUser=ref({} as {userid:string})
 async function confirmDeleteRole() {
+    console.log('roleLi:'+edit.deleteRoleList);
+    console.log('roleLi:'+edit.editUser);
+    
     const res = await deleteUserRole({
         userid: edit.editUser,
         roleList: edit.deleteRoleList

@@ -47,7 +47,7 @@
                         </el-icon>
                         <span>薪资管理</span>
                     </el-menu-item>
-                    <el-menu-item index="/directory/userManage" v-if="user.role!==Role['系统管理员']">
+                    <el-menu-item index="/directory/userManage" v-if="user.role===Role['系统管理员']">
                         <el-icon>
                             <setting />
                         </el-icon>

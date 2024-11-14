@@ -1,5 +1,5 @@
 import request from "@/utils/request";
-import axios from "axios";
+import axios, { type AxiosRequestConfig } from "axios";
 export enum Role {
   "系统管理员",
   "员工",
@@ -10,8 +10,8 @@ export enum Role {
   "招聘助理",
   "应聘者",
 }
-export enum Status{
-  "待审核"=1,
+export enum Status {
+  "待审核" = 1,
   "审核未通过",
   "待筛选",
   "筛选未通过",
@@ -19,26 +19,27 @@ export enum Status{
   "已同意面试",
   "已拒绝面试",
 }
-export enum Period{
-  "一面"=1,
+export enum Period {
+  "一面" = 1,
   "二面",
   "三面",
 }
-export enum InterStatus{
-  "待面试"=1,
+export enum InterStatus {
+  "待面试" = 1,
   "未通过",
   "已通过面试",
   "已发录用函",
 }
-export enum InterType{
-  "线下面试"=1,
+export enum InterType {
+  "线下面试" = 1,
   "视频面试",
   "电话面试",
 }
-export const userRegisterServe = ({ userid,psw }) => {
-  return axios.post("http://localhost:8081/user/createNewUser", { userid,psw })
-  .then(res=>res.data)
-  .catch(err=>err.data)
+export const userRegisterServe = ({ userid, psw }) => {
+  return axios
+    .post("http://localhost:8081/user/createNewUser", { userid, psw })
+    .then((res) => res.data)
+    .catch((err) => err.data);
 };
 
 export const userLoginServe = ({ userid, psw }) => {
@@ -122,7 +123,7 @@ export const getUserRole = (userid) => {
     });
 };
 
-export const showAllUsers = async() => {
+export const showAllUsers = async () => {
   let userList = [];
   await axios
     .get("http://localhost:8081/user/showUsers")
@@ -132,17 +133,23 @@ export const showAllUsers = async() => {
       console.log("showUsers:" + JSON.stringify(data));
       console.log("showUsers:" + typeof data);
       userList = data.map((item) => {
-        const { userid, staff, roleList } = item;
-        const { sname, sdep, sphone, sentryDate } = staff;
-
-        return {
-          userid,
-          sname,
-          sdep,
-          sphone,
-          roleList,
-          sentryDate,
-        };
+        const { userid, roleList } = item;
+        if (item.staff) {
+          const { sname, sdep, sphone, sentryDate } = item.staff;
+          return {
+            userid,
+            sname,
+            sdep,
+            sphone,
+            roleList,
+            sentryDate,
+          };
+        } else {
+          return {
+            userid,
+            roleList,
+          };
+        }
       });
     })
     .catch((error) => {
@@ -159,20 +166,33 @@ export function addUserRole({ userid, roleList }) {
     .catch((err) => err.data);
 }
 export function deleteUserRole({ userid, roleList }) {
-  console.log('delete:'+userid,roleList);
-  
-  return axios
-    .delete("http://localhost:8081/user/deleteUserRole", { userid, roleList })
+  const data = { userid, roleList };
+ 
+  const config: AxiosRequestConfig = {
+    method: 'DELETE',
+    url: 'http://localhost:8081/user/deleteUserRole',
+    data,
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  };
+ 
+  return axios(config)
     .then((res) => res.data)
-    .catch((err) => err.data);
+    .catch((err) => {
+      console.error("Error deleting user role:", err);
+      // 根据你的应用需求，你可能希望返回一个更具体的错误对象
+      return { error: 'Failed to delete user role', details: err.message, data: err.response ? err.response.data : null };
+    });
 }
 export function deleteUserByUserid(userid) {
   console.log(typeof userid);
-  
+
   return axios
     .delete(`http://localhost:8081/user/deleteUserByuserid/${userid}`)
-    .then((res) =>{console.log(res)}
-    )
+    .then((res) => {
+      console.log(res);
+    })
     .catch((err) => err.data);
 }
 export function getAllRecruit() {

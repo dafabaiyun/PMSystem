@@ -18,7 +18,7 @@
             <el-button type="primary" @click="create">创建请假申请</el-button>
         </div>
         <div class="table">
-            <el-table :data="filteredData" style="width: 100%">
+            <el-table :data="tableData" style="width: 100%">
                 <el-table-column prop="sno" label="工号" width="100" />
                 <el-table-column prop="resName" label="姓名" width="100" />
                 <el-table-column prop="recDep" label="部门" width="150" />
@@ -33,15 +33,10 @@
                 </el-table-column>
                 <el-table-column prop="appTime" label="申请时间" width="100" />
                 <el-table-column label="操作" fixed="right"
-                    v-if="user.role === Role['员工'] && scope.row.appStatus === leave['未通过']">
+                    v-if="user.role === Role['员工']">
                     <template #default="scope">
-                        <el-button type="primary" size="small" @click="fix(scope.row)">修改请假信息</el-button>
-                    </template>
-                </el-table-column>
-                <el-table-column label="操作" fixed="right"
-                    v-if="user.role === Role['员工'] && scope.row.appStatus !== leave['未通过']">
-                    <template #default="scope">
-                        <el-button type="primary" size="small" @click="cancel(scope.row.leaveNo)">取消请假</el-button>
+                        <el-button v-if="scope.row.appStatus === leave['未通过']" type="primary" size="small" @click="fix(scope.row)">修改请假信息</el-button>
+                        <el-button v-else type="primary" size="small" @click="cancel(scope.row.leaveNo)">取消请假</el-button>
                     </template>
                 </el-table-column>
                 <el-table-column label="操作" fixed="right" v-else>
@@ -53,7 +48,7 @@
             </el-table>
             <el-pagination background layout="prev, pager, next" total="100" class="pagination" />
         </div>
-        <el-dialog v-model="dialogVisible" title="请假信息" width="500" :before-close="dialogVisible.value = false">
+        <el-dialog v-model="dialogVisible" title="请假信息" width="500" :before-close="dialogVisible = false">
             <el-form :model="leaveForm" label-width="80px" style="max-width: 1200px" class="resumeDialog">
                 <el-form-item label="起止时间">
                     <el-date-picker v-model="leaveForm.date" type="datetimerange" range-separator="至"
@@ -82,10 +77,13 @@
 <script lang="ts" setup>
 import { reactive, computed, ref } from 'vue';
 import AttendanceChart from './AttendanceChart.vue';
+import { onMounted } from 'vue';
+import { useUserStore } from '../stores/user';
+import { Role, Status } from '@/api/user';
+const { user } = useUserStore()
 const searchForm = reactive({
-    name: '',
-    department: '',
-    dateRange: [] // 用于存储日期范围 [开始日期, 结束日期]  
+    appStatus: '',
+    recDep: '',  
 });
 enum leave {
     待审核 = 1,
@@ -94,105 +92,23 @@ enum leave {
     已通过,
     取消请假
 }
-const attendanceData = [
-    // 更新数据以包含新字段，例如 employeeId, checkInCount, lateCount, etc.  
-    {
-        date: '2023-10-01',
-        name: '李华',
-        employeeId: '001',
-        department: 'HR',
-        checkInCount: 5,
-        lateCount: 1,
-        leaveEarlyCount: 0,
-        absentCount: 0,
-        leaveCount: 0,
-        // ... 其他字段  
-    },
-    {
-        date: '2023-10-01',
-        name: '李华',
-        employeeId: '001',
-        department: 'HR',
-        checkInCount: 5,
-        lateCount: 1,
-        leaveEarlyCount: 0,
-        absentCount: 0,
-        leaveCount: 0,
-        // ... 其他字段  
-    },
-    {
-        date: '2023-10-01',
-        name: '李华',
-        employeeId: '001',
-        department: 'HR',
-        checkInCount: 5,
-        lateCount: 1,
-        leaveEarlyCount: 0,
-        absentCount: 0,
-        leaveCount: 0,
-        // ... 其他字段  
-    },
-    {
-        date: '2023-10-01',
-        name: '李华',
-        employeeId: '001',
-        department: 'HR',
-        checkInCount: 5,
-        lateCount: 1,
-        leaveEarlyCount: 0,
-        absentCount: 0,
-        leaveCount: 0,
-        // ... 其他字段  
-    },
-    {
-        date: '2023-10-01',
-        name: '李华',
-        employeeId: '001',
-        department: 'HR',
-        checkInCount: 5,
-        lateCount: 1,
-        leaveEarlyCount: 0,
-        absentCount: 0,
-        leaveCount: 0,
-        // ... 其他字段  
-    },
-    {
-        date: '2023-10-01',
-        name: '李华',
-        employeeId: '001',
-        department: 'HR',
-        checkInCount: 5,
-        lateCount: 1,
-        leaveEarlyCount: 0,
-        absentCount: 0,
-        leaveCount: 0,
-        // ... 其他字段  
-    },
-    // 更多数据...  
-];
+const tableData = ref([]);
 const leaveForm = reactive({
-    ...leave()
+    ...leaveFun()
 })
-function leave() {
+function leaveFun() {
     return {
         date: '',
         leaveType: '',
         reason: '',
     }
 }
-const searchAttendance = () => {
-    // 无需额外操作，因为 filteredData 是 computed 属性  
-};
+function search(){
 
-const showDetails = (row: any) => {
-    // 实现显示详情的逻辑，例如打开一个对话框或导航到另一个页面  
-    console.log('Show details for:', row);
-    // 这里可以添加打开详情页面的逻辑，例如使用 router.push  
-};
-// 处理标签点击事件（可选）  
-const handleTabClick = (tab: any) => {
-    console.log('Tab clicked:', tab.label);
-};
+}
+function reset(){
+    
+}
 const loading = ref(true)
 onMounted(async () => {
     await getData();
@@ -205,13 +121,13 @@ async function pass(leaveNo, passFlag) {
     loading.value = true;
     if (user.role === Role['部门主管']) {
         // 调用审核接口
-        passFlag ? await sh({ leaveNo, appStatus: leave['待审批'] }) : await sh({ leaveNo, appStatus: Status['未通过'] })
+        // passFlag ? await sh({ leaveNo, appStatus: leave['待审批'] }) : await sh({ leaveNo, appStatus: Status['未通过'] })
     }
     else if (user.role === Role['人事专员']) {
         // 调用筛选接口
-        passFlag ? await sh({ leaveNo, appStatus: leave['已通过'] }) : await sh({ leaveNo, appStatus: Status['未通过'] })
+        // passFlag ? await sh({ leaveNo, appStatus: leave['已通过'] }) : await sh({ leaveNo, appStatus: Status['未通过'] })
     }
-    tableData.value = await getData();
+    await getData();
 }
 const dialogVisible = ref(false);
 const creating = ref(false)
@@ -231,16 +147,16 @@ async function submit() {
     }
     creating.value = false;
     dialogVisible.value = false;
-    await getDate()
+    await getData()
 }
 function fix(row) {
     Object.assign(leaveForm, ...row);
     dialogVisible.value = true;
 
 }
-function cancel() {
+function cancel(leaveNo) {
     dialogVisible.value = false;
-    Object.assign(leaveForm, ...leave());
+    Object.assign(leaveForm, leaveFun());
     
 }
 </script>
