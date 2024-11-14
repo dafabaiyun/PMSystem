@@ -2,7 +2,7 @@
     <div>
         <div class="search" v-if="user.role !== Role['应聘者']">
             <el-form :model="form" label-width="auto" style="max-width: 1200px">
-                <el-form-item label="部门" prop="请选择部门">
+                <el-form-item label="部门" prop="请输入部门">
                     <el-input v-model="form.recDep" />
                 </el-form-item>
                 <el-form-item label="面试状态">

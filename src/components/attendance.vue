@@ -33,15 +33,10 @@
                 </el-table-column>
                 <el-table-column prop="appTime" label="申请时间" width="100" />
                 <el-table-column label="操作" fixed="right"
-                    v-if="user.role === Role['员工'] && scope.row.appStatus === leave['未通过']">
+                    v-if="user.role === Role['员工']">
                     <template #default="scope">
-                        <el-button type="primary" size="small" @click="fix(scope.row)">修改请假信息</el-button>
-                    </template>
-                </el-table-column>
-                <el-table-column label="操作" fixed="right"
-                    v-if="user.role === Role['员工'] && scope.row.appStatus !== leave['未通过']">
-                    <template #default="scope">
-                        <el-button type="primary" size="small" @click="cancel(scope.row.leaveNo)">取消请假</el-button>
+                        <el-button v-if="scope.row.appStatus === leave['未通过']" type="primary" size="small" @click="fix(scope.row)">修改请假信息</el-button>
+                        <el-button v-else type="primary" size="small" @click="cancel(scope.row.leaveNo)">取消请假</el-button>
                     </template>
                 </el-table-column>
                 <el-table-column label="操作" fixed="right" v-else>
@@ -102,19 +97,12 @@ function leaveFun() {
         reason: '',
     }
 }
-const searchAttendance = () => {
-    // 无需额外操作，因为 filteredData 是 computed 属性  
-};
+function search(){
 
-const showDetails = (row: any) => {
-    // 实现显示详情的逻辑，例如打开一个对话框或导航到另一个页面  
-    console.log('Show details for:', row);
-    // 这里可以添加打开详情页面的逻辑，例如使用 router.push  
-};
-// 处理标签点击事件（可选）  
-const handleTabClick = (tab: any) => {
-    console.log('Tab clicked:', tab.label);
-};
+}
+function reset(){
+    
+}
 const loading = ref(true)
 onMounted(async () => {
     await getData();
@@ -186,10 +174,9 @@ function fix(row) {
     dialogVisible.value = true;
 
 }
-function cancel() {
+function cancel(leaveNo) {
     dialogVisible.value = false;
     Object.assign(leaveForm, leaveFun());
-
 }
 </script>
 
