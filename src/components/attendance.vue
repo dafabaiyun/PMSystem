@@ -18,7 +18,7 @@
             <el-button type="primary" @click="create">创建请假申请</el-button>
         </div>
         <div class="table">
-            <el-table :data="filteredData" style="width: 100%">
+            <el-table :data="attendanceData" style="width: 100%">
                 <el-table-column prop="sno" label="工号" width="100" />
                 <el-table-column prop="resName" label="姓名" width="100" />
                 <el-table-column prop="recDep" label="部门" width="150" />
@@ -28,7 +28,7 @@
                 <el-table-column prop="reason" label="请假事由" width="100" />
                 <el-table-column prop="appStatus" label="请假状态" width="100">
                     <template #default="scope">
-                        <span>{{ leave[scope.row.appStatus] }}</span>
+                        <span>{{ Leave[scope.row.appStatus] }}</span>
                     </template>
                 </el-table-column>
                 <el-table-column prop="appTime" label="申请时间" width="100" />
@@ -53,7 +53,7 @@
             </el-table>
             <el-pagination background layout="prev, pager, next" total="100" class="pagination" />
         </div>
-        <el-dialog v-model="dialogVisible" title="请假信息" width="500" :before-close="dialogVisible.value = false">
+        <el-dialog v-model="dialogVisible" title="请假信息" width="500" :before-close="dialogVisible = false">
             <el-form :model="leaveForm" label-width="80px" style="max-width: 1200px" class="resumeDialog">
                 <el-form-item label="起止时间">
                     <el-date-picker v-model="leaveForm.date" type="datetimerange" range-separator="至"
@@ -68,7 +68,7 @@
                 </el-form-item>
                 <template #footer>
                     <div class="dialog-footer">
-                        <el-button @click="dialogVisible = false">取消</el-button>
+                        <el-button @click="cancelCreate">取消</el-button>
                         <el-button type="primary" @click="submit">
                             确认
                         </el-button>
@@ -80,100 +80,22 @@
 </template>
 
 <script lang="ts" setup>
-import { reactive, computed, ref } from 'vue';
-import AttendanceChart from './AttendanceChart.vue';
+import { reactive, computed, ref, onMounted } from 'vue';
+import { useUserStore } from '../stores/user';
+import { Role, Status } from '@/api/user';
+import { getStaffLeaveBySno, insertStaffLeave, Leave } from '@/api/staffLeave';
+import { ElMessage } from 'element-plus'
+const { user } = useUserStore()
 const searchForm = reactive({
-    name: '',
-    department: '',
-    dateRange: [] // 用于存储日期范围 [开始日期, 结束日期]  
+    recDep: '',
+    appStatus: '',
 });
-enum leave {
-    待审核 = 1,
-    待审批,
-    未通过,
-    已通过,
-    取消请假
-}
-const attendanceData = [
-    // 更新数据以包含新字段，例如 employeeId, checkInCount, lateCount, etc.  
-    {
-        date: '2023-10-01',
-        name: '李华',
-        employeeId: '001',
-        department: 'HR',
-        checkInCount: 5,
-        lateCount: 1,
-        leaveEarlyCount: 0,
-        absentCount: 0,
-        leaveCount: 0,
-        // ... 其他字段  
-    },
-    {
-        date: '2023-10-01',
-        name: '李华',
-        employeeId: '001',
-        department: 'HR',
-        checkInCount: 5,
-        lateCount: 1,
-        leaveEarlyCount: 0,
-        absentCount: 0,
-        leaveCount: 0,
-        // ... 其他字段  
-    },
-    {
-        date: '2023-10-01',
-        name: '李华',
-        employeeId: '001',
-        department: 'HR',
-        checkInCount: 5,
-        lateCount: 1,
-        leaveEarlyCount: 0,
-        absentCount: 0,
-        leaveCount: 0,
-        // ... 其他字段  
-    },
-    {
-        date: '2023-10-01',
-        name: '李华',
-        employeeId: '001',
-        department: 'HR',
-        checkInCount: 5,
-        lateCount: 1,
-        leaveEarlyCount: 0,
-        absentCount: 0,
-        leaveCount: 0,
-        // ... 其他字段  
-    },
-    {
-        date: '2023-10-01',
-        name: '李华',
-        employeeId: '001',
-        department: 'HR',
-        checkInCount: 5,
-        lateCount: 1,
-        leaveEarlyCount: 0,
-        absentCount: 0,
-        leaveCount: 0,
-        // ... 其他字段  
-    },
-    {
-        date: '2023-10-01',
-        name: '李华',
-        employeeId: '001',
-        department: 'HR',
-        checkInCount: 5,
-        lateCount: 1,
-        leaveEarlyCount: 0,
-        absentCount: 0,
-        leaveCount: 0,
-        // ... 其他字段  
-    },
-    // 更多数据...  
-];
+
+const attendanceData = ref([]);
 const leaveForm = reactive({
-    ...leave()
+    ...leaveFun()
 })
-function leave() {
+function leaveFun() {
     return {
         date: '',
         leaveType: '',
@@ -198,20 +120,22 @@ onMounted(async () => {
     await getData();
 })
 async function getData() {
-    // await 
+    if(user.role===Role['员工']){
+        attendanceData.value=await getStaffLeaveBySno(user.userid);
+    }
     loading.value = false;
 }
 async function pass(leaveNo, passFlag) {
     loading.value = true;
     if (user.role === Role['部门主管']) {
         // 调用审核接口
-        passFlag ? await sh({ leaveNo, appStatus: leave['待审批'] }) : await sh({ leaveNo, appStatus: Status['未通过'] })
+        passFlag ? await sh({ leaveNo, appStatus: Leave['待审批'] }) : await sh({ leaveNo, appStatus: Status['未通过'] })
     }
     else if (user.role === Role['人事专员']) {
         // 调用筛选接口
-        passFlag ? await sh({ leaveNo, appStatus: leave['已通过'] }) : await sh({ leaveNo, appStatus: Status['未通过'] })
+        passFlag ? await sh({ leaveNo, appStatus: Leave['已通过'] }) : await sh({ leaveNo, appStatus: Status['未通过'] })
     }
-    tableData.value = await getData();
+    await getData();
 }
 const dialogVisible = ref(false);
 const creating = ref(false)
@@ -220,28 +144,52 @@ function create() {
     dialogVisible.value = true;
 }
 async function submit() {
+    const { leaveType, reason, date } = leaveForm;
     if (creating) {
         // 创建请假信息
+        console.log(date);
 
+        const res = await insertStaffLeave({
+            sno: user.userid,
+            startDate: date[0],
+            endDate: date[1],
+            leaveType,
+            reason,
+        })
+        if (res.success) {
+            ElMessage({
+                message: '创建成功！',
+                type: 'success',
+            });
+        } else {
+            ElMessage({
+                message: res.errMsg || '创建失败！请重试',
+                type: 'error',
+            });
+        }
     }
     else {
         // 修改
 
 
     }
+    cancelCreate()
+    await getData()
+}
+function cancelCreate(){
+    Object.assign(leaveForm,leaveFun());
     creating.value = false;
     dialogVisible.value = false;
-    await getDate()
 }
 function fix(row) {
-    Object.assign(leaveForm, ...row);
+    Object.assign(leaveForm, row);
     dialogVisible.value = true;
 
 }
 function cancel() {
     dialogVisible.value = false;
-    Object.assign(leaveForm, ...leave());
-    
+    Object.assign(leaveForm, leaveFun());
+
 }
 </script>
 

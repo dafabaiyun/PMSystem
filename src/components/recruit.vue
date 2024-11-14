@@ -55,46 +55,46 @@
         <el-dialog v-model="dialogVisible" title="请输入简历信息" width="500" :before-close="CloseDialog">
             <el-form :model="recruitForm" label-width="70px" style="max-width: 1200px" class="resumeDialog">
                 <el-form-item label="姓名">
-                    <el-input v-model="recruitForm.name" placeholder="请输入姓名" />
+                    <el-input v-model="recruitForm.resName" placeholder="请输入姓名" />
                 </el-form-item>
                 <el-form-item label="年龄">
-                    <el-input v-model.number="recruitForm.age" type="number" placeholder="请输入年龄" />
+                    <el-input v-model.number="recruitForm.resAge" type="number" placeholder="请输入年龄" />
                 </el-form-item>
                 <el-form-item label="性别">
-                    <el-select v-model="recruitForm.gender" placeholder="请选择性别">
-                        <el-option label="男" value="male" />
-                        <el-option label="女" value="female" />
+                    <el-select v-model="recruitForm.resSex" placeholder="请选择性别">
+                        <el-option label="男" value="男" />
+                        <el-option label="女" value="女" />
                     </el-select>
                 </el-form-item>
                 <el-form-item label="籍贯">
-                    <el-input v-model="recruitForm.hometown"  placeholder="请输入籍贯"/>
+                    <el-input v-model="recruitForm.rnative" placeholder="请输入籍贯" />
                 </el-form-item>
                 <el-form-item label="联系方式">
-                    <el-input v-model="recruitForm.contact" placeholder="请输入联系方式" />
+                    <el-input v-model="recruitForm.resPhone" placeholder="请输入联系方式" />
                 </el-form-item>
                 <el-form-item label="最高学历">
-                    <el-select v-model="recruitForm.education" placeholder="请选择最高学历">
-                        <el-option label="专科" value="high_school" />
-                        <el-option label="本科" value="bachelor" />
-                        <el-option label="硕士" value="master" />
-                        <el-option label="博士" value="doctorate" />
+                    <el-select v-model="recruitForm.resEdu" placeholder="请选择最高学历">
+                        <el-option label="专科" value="专科" />
+                        <el-option label="本科" value="本科" />
+                        <el-option label="硕士" value="硕士" />
+                        <el-option label="博士" value="博士" />
                     </el-select>
                 </el-form-item>
                 <el-form-item label="实习经历">
-                    <el-input type="textarea" v-model="recruitForm.internship" placeholder="请输入实习经历" />
+                    <el-input type="textarea" v-model="recruitForm.experience" placeholder="请输入实习经历" />
                 </el-form-item>
                 <el-form-item label="证书技能">
-                    <el-input type="textarea" v-model="recruitForm.certificatesSkills" placeholder="请输入证书和技能" />
+                    <el-input type="textarea" v-model="recruitForm.skill" placeholder="请输入证书和技能" />
                 </el-form-item>
             </el-form>
-                <template #footer>
-                    <div class="dialog-footer">
-                        <el-button @click="dialogVisible = false">取消</el-button>
-                        <el-button type="primary" @click="submit">
-                            确认
-                        </el-button>
-                    </div>
-                </template>
+            <template #footer>
+                <div class="dialog-footer">
+                    <el-button @click="dialogVisible = false">取消</el-button>
+                    <el-button type="primary" @click="submit">
+                        确认
+                    </el-button>
+                </div>
+            </template>
         </el-dialog>
         <el-drawer v-model="drawer" size="70%" title="投递数据" :direction="direction" :before-close="handleClose">
             <el-table :data="resumeData" style="width: 100%">
@@ -125,9 +125,11 @@
 </template>
 
 <script lang="ts" setup>
-import { getAllRecruit, getResume, getResumeFile } from '@/api/user';
+import { getResume, getResumeFile } from '@/api/user';
 import { onMounted, reactive, ref } from 'vue';
 import { useUserStore } from '../stores/user';
+import { getAllRecruit, addResume } from '@/api/resume';
+import { ElMessage } from 'element-plus'
 const { user } = useUserStore()
 const form = reactive({
     name: '',
@@ -140,45 +142,25 @@ const form = reactive({
     resumeLink: ''
 });
 const recruitForm = reactive({
-    name: '',
-    age: null, // 使用null表示未输入年龄
-    gender: '',
-    hometown: '',
-    contact: '',
-    education: '',
-    internship: '',
-    certificatesSkills: ''
+    ...getRecruit()
 })
+function getRecruit() {
+    return {
+        resName: '',
+        resAge: null, // 使用null表示未输入年龄
+        resSex: '',
+        rnative: '',
+        resPhone: '',
+        resEdu: '',
+        experience: '',
+        skill: '',
+        recNo: null,
+    }
+}
 const load = ref(false);
 const drawer = ref(false);
 
-const tableData = ref([
-    {
-        recNo: 1,
-        recNum: 1,
-        recJob: "数据分析师",
-        recDep: '技术部',
-        recRequest: '本科可受到广泛惜不错vi因此v饿啊毒死一个礼拜的设备都变化',
-        recDest: '2',
-        pubTime: '2024-210-339-2345'
-    }, {
-        recNo: 1,
-        recNum: 1,
-        recJob: "数据分析师",
-        recDep: '技术部',
-        recRequest: '本科可惜不错vi因此v饿啊毒死一个礼拜的设备都变化',
-        recDest: '2',
-        pubTime: '2024-210-339-2345'
-    }, {
-        recNo: 1,
-        recNum: 1,
-        recJob: "数据分析师",
-        recDep: '技术部',
-        recRequest: '本科可惜不错vi因此v饿啊毒死一个礼拜的设备都变化',
-        recDest: '2',
-        pubTime: '2024-210-339-2345'
-    },
-]);
+const tableData = ref([]);
 const resumeData = ref([
     {
         resNo: 1,
@@ -204,13 +186,13 @@ const resumeData = ref([
     },
 ])
 onMounted(async () => {
-    // await fetchData() //记得恢复数据
+    await fetchData() //记得恢复数据
 })
 async function fetchData() {
     load.value = true;
     tableData.value = await getAllRecruit();
+    console.log(tableData.value);
     load.value = false;
-    // setTimeout(()=>{load.value=false;},1000)
 }
 const openDrawer = async (recNo) => {
     drawer.value = true;
@@ -250,14 +232,32 @@ function closeViewer() {
     previewImg.value = false;
 }
 const dialogVisible = ref(false);
-function openDialog() {
+function openDialog(recNo) {
+    recruitForm.recNo = recNo;
     dialogVisible.value = true;
 }
 function CloseDialog() {
     dialogVisible.value = false;
 }
-function submit(){
-    // await submitResume(recruitForm) //提交简历接口
+async function submit() {
+    console.log(JSON.stringify(recruitForm));
+
+    const res = await addResume(recruitForm) //提交简历接口
+    if (res.success) {
+        ElMessage({
+            message: '提交成功！',
+            type: 'success',
+        });
+        Object.assign(recruitForm,getRecruit());
+        console.log("recruitForm:"+recruitForm);
+        
+        dialogVisible.value=false;
+    }else{
+        ElMessage({
+            message: '提交失败！请重试',
+            type: 'error',
+        });
+    }
 }
 </script>
 
@@ -303,10 +303,12 @@ function submit(){
     float: right;
     margin-top: 20px;
 }
-/deep/ .resumeDialog .el-form-item__content{
-  width: 100%;
+
+/deep/ .resumeDialog .el-form-item__content {
+    width: 100%;
 }
-/deep/ .el-dialog__footer{
+
+/deep/ .el-dialog__footer {
     padding-top: 0;
 }
 </style>
