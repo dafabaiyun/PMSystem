@@ -35,7 +35,7 @@
                 <el-table-column label="操作" fixed="right"
                     v-if="user.role === Role['员工']">
                     <template #default="scope">
-                        <el-button v-if="scope.row.appStatus === leave['未通过']" type="primary" size="small" @click="fix(scope.row)">修改请假信息</el-button>
+                        <el-button v-if="scope.row.appStatus === Leave['未通过']" type="primary" size="small" @click="fix(scope.row)">修改请假信息</el-button>
                         <el-button v-else type="primary" size="small" @click="cancel(scope.row.leaveNo)">取消请假</el-button>
                     </template>
                 </el-table-column>
@@ -78,7 +78,7 @@
 import { reactive, computed, ref, onMounted } from 'vue';
 import { useUserStore } from '../stores/user';
 import { Role, Status } from '@/api/user';
-import { getStaffLeaveBySno, insertStaffLeave, Leave } from '@/api/staffLeave';
+import { getStaffLeaveBySno, getStaffLeaveByStatus, insertStaffLeave, Leave, updateStaffLeaveStatus } from '@/api/staffLeave';
 import { ElMessage } from 'element-plus'
 const { user } = useUserStore()
 const searchForm = reactive({
@@ -111,17 +111,23 @@ async function getData() {
     if(user.role===Role['员工']){
         attendanceData.value=await getStaffLeaveBySno(user.userid);
     }
+    else if(user.role===Role['技术部主管']){
+        attendanceData.value=await getStaffLeaveByStatus(Leave['待审核'])
+    }
+    else{
+        attendanceData.value=await getStaffLeaveByStatus(Leave['待审批'])
+    }
     loading.value = false;
 }
 async function pass(leaveNo, passFlag) {
     loading.value = true;
     if (user.role === Role['部门主管']) {
         // 调用审核接口
-        passFlag ? await sh({ leaveNo, appStatus: Leave['待审批'] }) : await sh({ leaveNo, appStatus: Status['未通过'] })
+        passFlag ? await updateStaffLeaveStatus({ leaveNo, appStatus: Leave['待审批'] }) : await updateStaffLeaveStatus({ leaveNo, appStatus: Status['未通过'] })
     }
     else if (user.role === Role['人事专员']) {
         // 调用筛选接口
-        passFlag ? await sh({ leaveNo, appStatus: Leave['已通过'] }) : await sh({ leaveNo, appStatus: Status['未通过'] })
+        passFlag ? await updateStaffLeaveStatus({ leaveNo, appStatus: Leave['已通过'] }) : await updateStaffLeaveStatus({ leaveNo, appStatus: Status['未通过'] })
     }
     await getData();
 }

@@ -27,14 +27,13 @@
         </div> -->
         <!-- <el-divider /> -->
         <div class="table">
-            <el-table :data="tableData" style="width: 100%" v-loading="load">
-                <el-table-column prop="recNo" label="编号" width="80" />
+            <el-table :data="tableData" v-loading="load">
                 <el-table-column prop="recJob" label="岗位" width="120" />
-                <el-table-column prop="recDep" label="部门" width="120" />
+                <el-table-column prop="recDep" label="部门" width="80" />
                 <el-table-column prop="recNum" label="人数" width="80" />
                 <el-table-column prop="recDest" label="工作地点" width="80" />
-                <el-table-column prop="recRequest" label="招聘要求" width="300" />
-                <el-table-column prop="pubTime" label="发布时间" width="150" />
+                <el-table-column prop="recRequest" label="招聘要求" width="350" />
+                <el-table-column prop="pubTime" label="发布时间" width="200" />
                 <el-table-column label="操作" width="120">
                     <template #default="scope">
                         <el-button link type="primary" size="small" @click="openDialog(scope.row.recNo)">
@@ -52,7 +51,7 @@
             </el-table>
             <el-pagination background layout="prev, pager, next" :total="100" class="pagination" />
         </div>
-        <el-dialog v-model="dialogVisible" title="请输入简历信息" width="500" :before-close="CloseDialog">
+        <el-dialog v-model="dialogVisible" title="请输入简历信息" width="500" :before-close="cancel">
             <el-form :model="recruitForm" label-width="70px" style="max-width: 1200px" class="resumeDialog">
                 <el-form-item label="姓名">
                     <el-input v-model="recruitForm.resName" placeholder="请输入姓名" />
@@ -89,16 +88,15 @@
             </el-form>
             <template #footer>
                 <div class="dialog-footer">
-                    <el-button @click="dialogVisible = false">取消</el-button>
+                    <el-button @click="cancel">取消</el-button>
                     <el-button type="primary" @click="submit">
                         确认
                     </el-button>
                 </div>
             </template>
         </el-dialog>
-        <el-drawer v-model="drawer" size="70%" title="投递数据" :direction="direction" :before-close="handleClose">
+        <!-- <el-drawer v-model="drawer" size="70%" title="投递数据" :direction="direction" :before-close="handleClose">
             <el-table :data="resumeData" style="width: 100%">
-                <el-table-column prop="resNo" label="编号" width="80" />
                 <el-table-column prop="resName" label="姓名" width="120" />
                 <el-table-column prop="resAge" label="年龄" width="120" />
                 <el-table-column prop="resSex" label="性别" width="80" />
@@ -120,7 +118,7 @@
             <el-image-viewer style="width: 100px; height: 100px" :src="url" :zoom-rate="1.2" :max-scale="7"
                 :min-scale="0.2" :url-list="[url]" v-if="previewImg" :on-close="closeViewer" :hide-on-click-modal="true"
                 fit="cover" />
-        </div>
+        </div> -->
     </div>
 </template>
 
@@ -228,9 +226,6 @@ async function showResume(recNo) {
     previewImg.value = true;
     // url.value=resAttach; //记得恢复数据
 }
-function closeViewer() {
-    previewImg.value = false;
-}
 const dialogVisible = ref(false);
 function openDialog(recNo) {
     recruitForm.recNo = recNo;
@@ -248,16 +243,22 @@ async function submit() {
             message: '提交成功！',
             type: 'success',
         });
-        Object.assign(recruitForm,getRecruit());
-        console.log("recruitForm:"+recruitForm);
-        
-        dialogVisible.value=false;
-    }else{
+        Object.assign(recruitForm, getRecruit());
+        console.log("recruitForm:" + recruitForm);
+
+        dialogVisible.value = false;
+    } else {
         ElMessage({
             message: '提交失败！请重试',
             type: 'error',
         });
     }
+
+}
+function cancel() {
+    Object.assign(recruitForm, getRecruit());
+    dialogVisible.value = false;
+
 }
 </script>
 
@@ -310,5 +311,9 @@ async function submit() {
 
 /deep/ .el-dialog__footer {
     padding-top: 0;
+}
+
+/deep/ .cell {
+    text-align: center;
 }
 </style>

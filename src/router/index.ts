@@ -17,7 +17,7 @@ const router = createRouter({
       children: [
         {
           path: "attendance",
-          component: () => import("../components/attendance.vue"),
+          component: () => import("../components/staffLeave.vue"),
         },
         {
           path: "recruit",
