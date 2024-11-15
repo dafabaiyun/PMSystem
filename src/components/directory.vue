@@ -1,4 +1,3 @@
-
 <template>
     <div>
         <el-container>
@@ -6,8 +5,10 @@
                 <div class="logo">
                     <h2 class="mb-2">人事管理系统</h2>
                 </div>
-                <el-menu active-text-color="#ffd04b" :router="true" :default-active="user.role===Role['应聘者']?'/directory/recruit':'/directory/attendance'" background-color="#1155bc" class="menu" router text-color="#fff">
-                    <el-menu-item index="/directory/recruit" v-if="user.role===Role['应聘者']">
+                <el-menu active-text-color="#ffd04b" :router="true"
+                    :default-active="user.role === Role['应聘者'] ? '/directory/recruit' : '/directory/attendance'"
+                    background-color="#1155bc" class="menu" router text-color="#fff">
+                    <el-menu-item index="/directory/recruit" v-if="user.role === Role['应聘者']">
                         <el-icon>
                             <document />
                         </el-icon>
@@ -32,10 +33,10 @@
                             </el-icon>
                             <span>培训管理</span>
                         </template>
-                        <el-menu-item index="/directory/plan">培训计划</el-menu-item>
-                        <el-menu-item index="/directory/edit">培训记录</el-menu-item>
-                    </el-sub-menu> -->
-                    <el-menu-item index="/directory/attendance" v-if="user.role!==Role['应聘者']">
+<el-menu-item index="/directory/plan">培训计划</el-menu-item>
+<el-menu-item index="/directory/edit">培训记录</el-menu-item>
+</el-sub-menu> -->
+                    <el-menu-item index="/directory/attendance" v-if="user.role !== Role['应聘者']">
                         <el-icon>
                             <document />
                         </el-icon>
@@ -47,7 +48,7 @@
                         </el-icon>
                         <span>薪资管理</span>
                     </el-menu-item>
-                    <el-menu-item index="/directory/userManage" v-if="user.role===Role['系统管理员']">
+                    <el-menu-item index="/directory/userManage" v-if="user.role === Role['系统管理员']">
                         <el-icon>
                             <setting />
                         </el-icon>
@@ -57,8 +58,12 @@
             </el-aside>
             <el-container>
                 <el-header>
-                    <el-button type="primary" @click="attend" :disabled="disabled">签到</el-button>
-                    <div class="user-info">
+                    <div class="left">
+                        <el-button type="primary" @click="attend" :disabled="disabled">签到</el-button>
+                        <span class="roleName">当前角色：{{ Role[user.role] }}</span>
+                    </div>
+                    <div class="right">
+
                         <img src="../assets/index.webp" alt="用户头像" class="avatar">
                         <span class="name">用户名称</span>
                     </div>
@@ -73,10 +78,10 @@ import { ref } from 'vue';
 import { useUserStore } from '../stores/user';
 import { Role } from '@/api/user';
 const { user } = useUserStore()
-const disabled=ref(false);
+const disabled = ref(false);
 async function attend() {
     // await // 签到接口
-    disabled.value=true;
+    disabled.value = true;
 }
 
 </script>
@@ -95,12 +100,16 @@ async function attend() {
     height: 100vh;
 }
 
-.el-header .user-info {
+.el-header {
     display: flex;
-    flex-flow: row nowrap;
-    justify-content: end;
+    flex-flow: row wrap;
+    justify-content: space-between;
     align-items: center;
-    height: 100%;
+}
+.right{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
 }
 
 .el-header .avatar {
@@ -126,5 +135,9 @@ async function attend() {
 
 /deep/ .el-menu-item.is-active {
     background-color: #0e4496;
+}
+
+.roleName {
+    margin: 0 10px;
 }
 </style>

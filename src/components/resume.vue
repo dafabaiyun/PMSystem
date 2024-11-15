@@ -3,11 +3,12 @@
         <div class="search" v-if="user.role !== Role['应聘者']">
             <el-form :model="form" label-width="auto" style="max-width: 1200px">
                 <el-form-item label="部门">
-                    <el-input v-model="form.recDep"  placeholder="请输入部门"/>
+                    <el-input v-model="form.recDep" placeholder="请输入部门" />
                 </el-form-item>
                 <el-form-item label="简历状态">
                     <el-select v-model="form.resStatus" placeholder="请选择简历状态">
                         <el-option label="待筛选" value="3" />
+                        <el-option label="面试意向确认" value="5" />
                         <el-option label="待面试" value="6" />
                     </el-select>
                 </el-form-item>
@@ -29,30 +30,31 @@
                         <span>{{ Status[Number(scope.row.resStatus)] || Status[1] }}</span>
                     </template>
                 </el-table-column>
-                <!-- <el-table-column fixed="right" prop="resStatus" label="状态" width="120">
-                    <template #default="scope">
-                        <el-select v-model="scope.row.resStatus" placeholder="请修改简历状态" size="small" @change="changeStatus">
-                            <el-option v-for="item in options[user.role] || []" :label="item.val" :value="item.id" />
-                        </el-select>
-                    </template>
-                </el-table-column> -->
                 <el-table-column fixed="right" label="操作" min-width="100">
                     <template #default="scope">
                         <el-button type="primary" size="small" @click="handleDetail(scope.row)">查看简历</el-button>
                     </template>
                 </el-table-column>
-                <el-table-column fixed="right" label="面试回复" min-width="200"
-                    v-if="user.role === Role['应聘者']">
+                <el-table-column fixed="right" label="面试回复" min-width="200" v-if="user.role === Role['应聘者']">
                     <template #default="scope">
-                        <el-button :disabled="Number(scope.row.resStatus) !== Status['面试意愿确认']" type="primary" size="small" @click="agree(true, scope.row)">同意</el-button>
-                        <el-button :disabled="Number(scope.row.resStatus) !== Status['面试意愿确认']" type="primary" size="small" @click="agree(false, scope.row)">拒绝</el-button>
+                        <el-button :disabled="Number(scope.row.resStatus) !== Status['面试意愿确认']" type="primary"
+                            size="small" @click="agree(true, scope.row)">同意</el-button>
+                        <el-button :disabled="Number(scope.row.resStatus) !== Status['面试意愿确认']" type="primary"
+                            size="small" @click="agree(false, scope.row)">拒绝</el-button>
                     </template>
                 </el-table-column>
                 <el-table-column fixed="right" label="审核结果" min-width="200" v-if="user.role !== Role['应聘者']">
                     <template #default="scope">
-                        <el-button v-if="scope.row.resStatus!==Status['已同意面试']" type="primary" size="small" @click="pass(true, scope.row)">通过</el-button>
-                        <el-button v-if="scope.row.resStatus!==Status['已同意面试']" type="primary" size="small" @click="pass(false, scope.row)">不通过</el-button>
-                        <el-button v-if="scope.row.resStatus===Status['已同意面试']" type="primary" size="small" @click="createInter(scope.row)">创建面试</el-button>
+                        <el-button
+                            v-if="Number(scope.row.resStatus) === Status['待审核'] || Number(scope.row.resStatus) === Status['待筛选']"
+                            type="primary" size="small" @click="pass(true, scope.row)">通过</el-button>
+                        <el-button
+                            v-if="Number(scope.row.resStatus) === Status['待审核'] || Number(scope.row.resStatus) === Status['待筛选']"
+                            type="primary" size="small" @click="pass(false, scope.row)">不通过</el-button>
+                        <el-button v-if="user.role === Role['人事专员'] && Number(scope.row.resStatus) === Status['已同意面试']"
+                            type="primary" size="small" @click="createInter(scope.row.resNo)">创建面试</el-button>
+                        <span v-if="user.role === Role['人事专员'] && Number(scope.row.resStatus) === Status['面试意愿确认']"
+                            type="primary" size="small">等待回复中</span>
                     </template>
                 </el-table-column>
             </el-table>
@@ -105,26 +107,29 @@
                 </div>
             </template>
         </el-dialog>
-        
-        <el-dialog v-model="interVisible" title="简历信息" width="500" :before-close="CloseInter">
-            <el-form :model="interForm"
-                label-width="80px" style="max-width: 1200px" class="resumeDialog">
-                <el-form-item label="面试时间">
-                    <el-input v-model="interForm.interTime" placeholder="请输入面试时间" />
+
+        <el-dialog v-model="interVisible" title="创建面试信息" width="500" :before-close="CloseInter">
+            <el-form :model="interForm" label-width="80px" style="max-width: 1200px" class="interDialog">
+                <el-form-item label="面试地点">
+                    <el-config-provider :locale="zhCn">
+                        <el-date-picker :locale="zhCn" v-model="interForm.interTime" type="datetime" placeholder="请选择面试时间"
+                            value-format="YYYY-MM-DDTHH:MM:ss" />
+                    </el-config-provider>
                 </el-form-item>
                 <el-form-item label="面试地点">
                     <el-input v-model.number="interForm.interDest" placeholder="请输入面试地点" />
                 </el-form-item>
                 <el-form-item label="面试类型">
                     <el-select v-model="interForm.interType" placeholder="请选择面试类型">
-                        <el-option label="男" value="male" />
-                        <el-option label="女" value="female" />
+                        <el-option label="线下面试" value="线下面试" />
+                        <el-option label="视频面试" value="视频面试" />
+                        <el-option label="电话面试" value="电话面试" />
                     </el-select>
                 </el-form-item>
             </el-form>
             <template #footer>
                 <div class="dialog-footer">
-                    <el-button @click="cancelInter">取消</el-button>
+                    <el-button @click="CloseInter">取消</el-button>
                     <el-button type="primary" @click="submitInter">
                         确认
                     </el-button>
@@ -142,6 +147,8 @@ import { Role, Status } from '@/api/user';
 import { getAllRecruit, getResumeByDep, getResumeByStatus, getResumeByUserid, updateResume } from '@/api/resume';
 const { user } = useUserStore()
 import { ElMessage } from 'element-plus'
+import { insertInterview } from '@/api/interview';
+import { zhCn } from 'element-plus/es/locales.mjs';
 const form = reactive({
     recDep: '',
     resStatus: '3'
@@ -152,11 +159,6 @@ const handleDetail = (row: any) => {
     Object.assign(recruitForm, row)
     console.log(recruitForm);
     dialogVisible.value = true;
-};
-
-const handleEdit = (row: any) => {
-    // 实现修改简历的逻辑  
-    // alert(`修改简历: ${JSON.stringify(row)}`);
 };
 const loading = ref(true);
 onMounted(async () => {
@@ -178,9 +180,7 @@ async function getData() {
 }
 
 const dialogVisible = ref(false);
-function openDialog() {
-    dialogVisible.value = true;
-}
+
 function CloseDialog() {
     dialogVisible.value = false;
 }
@@ -291,19 +291,44 @@ async function search() {
 async function reset() {
     await getData();
 }
+function CloseInter() {
+    Object.assign(interForm, getInterForm());
+    interVisible.value = false;
+}
+const interVisible = ref(false);
+function getInterForm() {
+    return {
+        interTime: '',
+        interDest: '',
+        interType: '',
+        resNo: null,
+    }
+}
+const interForm = reactive({
+    ...getInterForm()
+})
+function createInter(resNo) {
+    interForm.resNo = resNo;
+    interVisible.value = true;
+}
 function cancel() {
     Object.assign(recruitForm, getRecruit());
     dialogVisible.value = false;
 
 }
-const interVisible=ref(false);
-function getInterForm(){
-    return{
-        
+async function submitInter() {
+    const res = await insertInterview(interForm)
+    if (res.success) {
+        ElMessage({
+            message: '操作成功！',
+            type: 'success',
+        });
+    } else {
+        ElMessage({
+            message: res.errMsg || '操作失败！请重试',
+            type: 'error',
+        });
     }
-}
-function createInter(row){
-
 }
 </script>
 
@@ -342,11 +367,19 @@ function createInter(row){
     margin-top: 20px;
 }
 
-/deep/ .resumeDialog .el-form-item__content {
+/deep/ .resumeDialog .el-form-item {
     width: 100%;
 }
 
 /deep/ .el-dialog__footer {
     padding-top: 0;
+}
+
+/deep/ .interDialog .el-date-editor {
+    width: 100%;
+}
+
+/deep/ .interDialog .el-form-item {
+    width: 100%;
 }
 </style>

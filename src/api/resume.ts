@@ -8,19 +8,19 @@ export function getAllRecruit(){
 export function getResumeByUserid(id){
     return axios.get(`http://localhost:8081/resume/getResumeByUserid/${id}`)
     .then(res=>res.data.data)
-    .catch(err=>err.errMsg)
+    .catch(err=>err.data)
 
 }
 export function getResumeByStatus(status){
     return axios.get(`http://localhost:8081/resume/getResumeByStatus/${status}`)
     .then(res=>res.data.data)
-    .catch(err=>err.errMsg)
+    .catch(err=>err.data)
 
 }
 export function getResumeByDep(sdep){
     return axios.get(`http://localhost:8081/resume/getResumeByDep/${sdep}`)
     .then(res=>res.data.data)
-    .catch(err=>err.errMsg)
+    .catch(err=>err.data)
 
 }
 export function addResume(obj){
