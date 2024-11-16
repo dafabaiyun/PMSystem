@@ -75,17 +75,6 @@ const form = reactive({
 
 const tableData = ref([]);
 
-const handleDetail = (resNo: any) => {
-    // 实现查看简历详情的逻辑  
-    // alert(`查看简历详情: ${JSON.stringify(row)}`);查看简历
-    dialogVisible.value = true;
-};
-
-const handleEdit = (row: any) => {
-    // 实现修改简历的逻辑  
-    // alert(`修改简历: ${JSON.stringify(row)}`);
-};
-
 async function pass(row, passFlag) {
     loading.value = true;
     let res;
@@ -132,8 +121,6 @@ async function getData() {
     }
     loading.value = false;
 }
-
-const dialogVisible = ref(false);
 
 async function send(row) {
     loading.value = true;

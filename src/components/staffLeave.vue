@@ -80,7 +80,6 @@ import { ElMessage } from 'element-plus'
 const { user } = useUserStore()
 const searchForm = reactive({
     recDep: '',
-    appStatus: '',
 });
 
 const attendanceData = ref([]);
@@ -97,8 +96,8 @@ function leaveFun() {
 function search(){
 
 }
-function reset(){
-    
+async function reset(){
+    await getData()
 }
 const loading = ref(false)
 onMounted(async () => {
@@ -118,7 +117,6 @@ async function getData() {
     loading.value = false;
 }
 async function pass(leaveNo, passFlag) {
-    loading.value = true;
     if (user.role === Role['部门主管']) {
         // 调用审核接口
         passFlag ? await updateStaffLeaveStatus({ leaveNo, appStatus: Leave['待审批'] }) : await updateStaffLeaveStatus({ leaveNo, appStatus: Status['未通过'] })
