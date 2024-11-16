@@ -2,9 +2,6 @@
     <div>
         <div class="search" v-if="user.role !== Role['员工']">
             <el-form :model="searchForm" label-width="auto" style="max-width: 1200px">
-                <el-form-item label="请假状态">
-                    <el-input v-model="searchForm.appStatus" placeholder="请输入请假状态" />
-                </el-form-item>
                 <el-form-item label="部门">
                     <el-input v-model="searchForm.recDep" placeholder="请输入部门" />
                 </el-form-item>
@@ -28,7 +25,7 @@
                 <el-table-column prop="reason" label="请假事由" width="100" />
                 <el-table-column prop="appStatus" label="请假状态" width="100">
                     <template #default="scope">
-                        <span>{{ Leave[scope.row.appStatus] }}</span>
+                        <span>{{ Leave[Number(scope.row.appStatus)] }}</span>
                     </template>
                 </el-table-column>
                 <el-table-column prop="appTime" label="申请时间" width="100" />
@@ -103,11 +100,12 @@ function search(){
 function reset(){
     
 }
-const loading = ref(true)
+const loading = ref(false)
 onMounted(async () => {
     await getData();
 })
 async function getData() {
+    loading.value = true;
     if(user.role===Role['员工']){
         attendanceData.value=await getStaffLeaveBySno(user.userid);
     }
