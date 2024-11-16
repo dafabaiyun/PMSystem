@@ -190,26 +190,24 @@ export function deleteUserByUserid(userid) {
 
   return axios
     .delete(`http://localhost:8081/user/deleteUserByuserid/${userid}`)
-    .then((res) => {
-      console.log(res);
-    })
+    .then((res) =>res.data)
     .catch((err) => err.data);
 }
-export function getAllRecruit() {
-  return axios
-    .get("/recruit/getAllRecruit")
-    .then((res) => res.data)
-    .catch((err) => err.success);
-}
-export function getResume(recNo) {
-  return axios
-    .get(`/resume/getResumeByRecNo/${recNo}`)
-    .then((res) => res.data)
-    .catch((err) => err.success);
-}
-export function getResumeFile(resNo) {
-  return axios
-    .get(`/resume/getResumeFile/${resNo}`)
-    .then((res) => res.data)
-    .catch((err) => err.success);
-}
+// export function getAllRecruit() {
+//   return axios
+//     .get("/recruit/getAllRecruit")
+//     .then((res) => res.data)
+//     .catch((err) => err.data);
+// }
+// export function getResume(recNo) {
+//   return axios
+//     .get(`/resume/getResumeByRecNo/${recNo}`)
+//     .then((res) => res.data)
+//     .catch((err) => err.data);
+// }
+// export function getResumeFile(resNo) {
+//   return axios
+//     .get(`/resume/getResumeFile/${resNo}`)
+//     .then((res) => res.data)
+//     .catch((err) => err.data);
+// }

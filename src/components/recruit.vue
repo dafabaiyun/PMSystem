@@ -123,7 +123,6 @@
 </template>
 
 <script lang="ts" setup>
-import { getResume, getResumeFile } from '@/api/user';
 import { onMounted, reactive, ref } from 'vue';
 import { useUserStore } from '../stores/user';
 import { getAllRecruit, addResume } from '@/api/resume';

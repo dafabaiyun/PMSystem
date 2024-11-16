@@ -59,7 +59,7 @@
             <el-container>
                 <el-header>
                     <div class="left">
-                        <el-button type="primary" @click="attend" :disabled="disabled">签到</el-button>
+                        <el-button type="primary" @click="attend" :disabled="disabled" v-if="user.role!==Role['应聘者']">签到</el-button>
                         <span class="roleName">当前角色：{{ Role[user.role] }}</span>
                     </div>
                     <div class="right">
@@ -74,16 +74,51 @@
     </div>
 </template>
 <script setup>
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import { useUserStore } from '../stores/user';
 import { Role } from '@/api/user';
+import { insertAttend } from '@/api/salary';
+import { ElMessage } from 'element-plus'
+
 const { user } = useUserStore()
 const disabled = ref(false);
 async function attend() {
-    // await // 签到接口
-    disabled.value = true;
-}
+    console.log(attendDate.value,signIn.value);
+    
+    const res = await insertAttend({
+        sno: user.userid,
+        attendDate:attendDate.value,
+        signIn:signIn.value,
+    }) // 签到接口
 
+    if (res.success) {
+        ElMessage({
+            message: '签到成功！',
+            type: 'success',
+        });
+
+        disabled.value = true;
+    } else {
+        ElMessage({
+            message: res.errMsg||'签到失败！请重试',
+            type: 'error',
+        });
+    }
+}
+const attendDate = computed(() => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0'); // 月份从0开始，需要加1，并确保是两位数
+    const day = String(now.getDate()).padStart(2, '0'); // 确保是两位数
+    return `${year}-${month}-${day}`;
+})
+const signIn = computed(() => {
+    const now = new Date();
+    const hours = String(now.getHours()).padStart(2, '0'); // 确保是两位数
+    const minutes = String(now.getMinutes()).padStart(2, '0'); // 确保是两位数
+    const seconds = String(now.getSeconds()).padStart(2, '0'); // 确保是两位数
+    return `${hours}:${minutes}:${seconds}`;
+})
 </script>
 
 <style scoped>
@@ -106,7 +141,8 @@ async function attend() {
     justify-content: space-between;
     align-items: center;
 }
-.right{
+
+.right {
     display: flex;
     flex-direction: row;
     align-items: center;
