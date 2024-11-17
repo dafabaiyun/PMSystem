@@ -1,23 +1,19 @@
 <template>
     <div>
-        <div class="buttons">
-            <el-button type="primary" @click="calculate">一键核算</el-button>
-            <el-button type="primary" v-if="user.role===Role['财政专员'] && currentStatus===SalaryStatus['待发放']" @click="send">一键发放</el-button>
-        </div>
-        <div class="search" v-if="user.role!==Role['员工']">
+        <div class="search" v-if="user.role !== Role['员工']">
             <el-form :model="form" label-width="auto" style="max-width: 1200px">
                 <el-form-item label="月份">
-                    <el-input v-model="form.salaryNo" placeholder="请输入部门" />
+                    <el-input v-model="form.salaryNo" placeholder="请输入月份，例：2024-10" />
                 </el-form-item>
                 <el-form-item label="状态">
-                    <el-select v-if="user.role===Role['财政专员']" v-model="form.payStatus" placeholder="请选择发放状态">
-                        <el-option label="待审核" :value="SalaryStatus['待审核']" />
-                        <el-option label="待发放" :value="SalaryStatus['待发放']" />
+                    <el-select clearable v-if="user.role === Role['财政专员']" v-model="form.payStatus" placeholder="请选择发放状态">
+                        <el-option label="待审核" :value="SalaryStatus['待审核'].toString()" />
+                        <el-option label="待发放" :value="SalaryStatus['待发放'].toString()" />
                     </el-select>
-                    <el-select v-else v-model="form.payStatus" placeholder="请选择发放状态">
-                        <el-option label="待核算" :value="SalaryStatus['待核算']" />
-                        <el-option label="有异议" :value="SalaryStatus['有异议']" />
-                        <el-option label="审核未通过" :value="SalaryStatus['审核未通过']" />
+                    <el-select clearable v-else v-model="form.payStatus" placeholder="请选择发放状态">
+                        <el-option label="待核算" :value="SalaryStatus['待核算'].toString()" />
+                        <el-option label="有异议" :value="SalaryStatus['有异议'].toString()" />
+                        <el-option label="审核未通过" :value="SalaryStatus['审核未通过'].toString()" />
                     </el-select>
                 </el-form-item>
                 <el-form-item>
@@ -25,6 +21,11 @@
                     <el-button type="default" @click="reset">重置</el-button>
                 </el-form-item>
             </el-form>
+        </div>
+        <div class="buttons">
+            <el-button type="primary" v-if="user.role === Role['人事专员'] && currentStatus === SalaryStatus['待核算'].toString()"
+                @click="calculate">一键核算</el-button>
+            <!-- <el-button type="primary" v-if="user.role===Role['财政专员'] && currentStatus===SalaryStatus['待发放']" @click="send">一键发放</el-button> -->
         </div>
         <el-divider />
         <div class="table">
@@ -46,23 +47,33 @@
                 <el-table-column prop="payTime" label="发放日期" width="120" />
                 <el-table-column label="操作" width="120">
                     <template #default="scope">
-                        <el-button v-if="user.role===Role['人事专员'] && scope.row.payStatus===SalaryStatus['待核算']" type="primary" size="small" @click="openDialog(scope.row)">
+                        <el-button v-if="user.role === Role['人事专员'] && scope.row.payStatus === SalaryStatus['待核算'].toString()"
+                            type="primary" size="small" @click="openDialog(scope.row)">
                             填写薪资
                         </el-button>
-                        <el-button v-if="user.role===Role['财政专员'] && scope.row.payStatus===SalaryStatus['待审批']" type="primary" size="small" @click="pass(scope.row,true)">
+                        <el-button v-if="user.role === Role['财政专员'] && scope.row.payStatus === SalaryStatus['待审批'].toString()"
+                            type="primary" size="small" @click="pass(scope.row, true)">
                             审批通过
                         </el-button>
-                        <el-button v-if="user.role===Role['财政专员'] && scope.row.payStatus===SalaryStatus['待审批']" type="primary" size="small" @click="pass(scope.row,false)">
+                        <el-button v-if="user.role === Role['财政专员'] && scope.row.payStatus === SalaryStatus['待审批'].toString()"
+                            type="primary" size="small" @click="pass(scope.row, false)">
                             审批不通过
                         </el-button>
-                        <el-button v-if="user.role===Role['员工'] && scope.row.payStatus===SalaryStatus['待确认']" type="primary" size="small" @click="pass(scope.row,true)">
+                        <el-button v-if="user.role === Role['财政专员'] && scope.row.payStatus === SalaryStatus['待发放'].toString()"
+                            type="primary" size="small" @click="send(scope.row)">
+                            审批不通过
+                        </el-button>
+                        <el-button v-if="user.role === Role['员工'] && scope.row.payStatus === SalaryStatus['待确认'].toString()"
+                            type="primary" size="small" @click="pass(scope.row, true)">
                             确认薪资
                         </el-button>
-                        <el-button v-if="user.role===Role['员工'] && scope.row.payStatus===SalaryStatus['待确认']" type="primary" size="small" @click="pass(scope.row,false)">
+                        <el-button v-if="user.role === Role['员工'] && scope.row.payStatus === SalaryStatus['待确认'].toString()"
+                            type="primary" size="small" @click="pass(scope.row, false)">
                             有异议
                         </el-button>
-                        
-                        <span v-if="user.role===Role['员工'] && scope.row.payStatus!==SalaryStatus['待确认']" type="primary" size="small" @click="pass(scope.row,false)">
+
+                        <span v-if="user.role === Role['员工'] && scope.row.payStatus !== SalaryStatus['待确认'].toString()" type="primary"
+                            size="small">
                             审批中...
                         </span>
                     </template>
@@ -97,37 +108,36 @@
 <script lang="ts" setup>
 import { onMounted, reactive, ref } from 'vue';
 import { ElMessage } from 'element-plus'
-import { calculateSalary, getSalaryByDate, getSalaryBySno, getSalaryByStatus, SalaryStatus, updateSalary } from '@/api/salary';
+import { calculateSalary, getSalaryByDate, getSalaryBySno, getSalaryByStatus, SalaryStatus, updateSalary, updateSalaryStatus } from '@/api/salary';
 import { useUserStore } from '../stores/user';
 import { Role } from '@/api/user';
 const { user } = useUserStore()
 // 初始化薪资数据  
 const salaryData = ref([])
-const currentStatus = ref()
+const currentStatus = ref('1')
 // 搜索筛选表单的数据模型  
 const form = reactive({
     salaryNo: '',
-    payStatus: user.role===Role['人事专员']?'1':'2',
+    payStatus: user.role === Role['人事专员'] ? '1' : '2',
 });
 async function search() {
-    let res;
     if (form.payStatus) {
         currentStatus.value = form.payStatus;
-        res = await getSalaryByStatus(form.payStatus)
+        salaryData.value = await getSalaryByStatus(form.payStatus)
     } else if (form.salaryNo) {
-        res = await getSalaryByDate(form.salaryNo)
+        salaryData.value = await getSalaryByDate(form.salaryNo)
     } else {
-        res = await getData()
+        await getData()
     }
 }
 const loading = ref(false);
 async function getData() {
     loading.value = true
     if (user.role === Role['人事专员']) {
-        salaryData.value = await getSalaryByStatus(SalaryStatus['待核算'])
+        salaryData.value = await getSalaryByStatus(SalaryStatus['待核算'].toString())
     }
     else if (user.role === Role['财政专员']) {
-        salaryData.value = await getSalaryByStatus(SalaryStatus['待审核'])
+        salaryData.value = await getSalaryByStatus(SalaryStatus['待审核'].toString())
     }
     else {
         salaryData.value = await getSalaryBySno(user.userid);
@@ -171,9 +181,10 @@ function getSalaryForm() {
 }
 const dialogVisible = ref(false);
 function openDialog(row) {
-    const { sNo, salaryNo } = row
-    salaryForm.sNo = sNo;
-    salaryForm.salaryNo = salaryNo;
+    // const { sNo, salaryNo,baseSal,jobSal,bonus } = row
+    // salaryForm.sNo = sNo;
+    // salaryForm.salaryNo = salaryNo;
+    Object.assign(salaryForm, row)
     dialogVisible.value = true;
 }
 function cancel() {
@@ -192,6 +203,47 @@ async function submit() {
     } else {
         ElMessage({
             message: res.errMsg || '填写失败！请重试',
+            type: 'error',
+        });
+    }
+}
+async function pass(row, flag) {
+    let res;
+    const { sno, salaryNo } = row
+    if (user.role === Role['员工']) {
+        res = flag ? await updateSalaryStatus({ sno, salaryNo, paystatus: SalaryStatus['待发放'].toString() }) : await updateSalaryStatus({ sno, salaryNo, paystatus: SalaryStatus['有异议'].toString() })
+    }
+    else {
+        res = flag ? await updateSalaryStatus({ sno, salaryNo, paystatus: SalaryStatus['待确认'].toString() }) : await updateSalaryStatus({ sno, salaryNo, paystatus: SalaryStatus['审核未通过'].toString() })
+    }
+    if (res.success) {
+        ElMessage({
+            message: '操作成功！',
+            type: 'success',
+        });
+        cancel()
+        await getData();
+    } else {
+        ElMessage({
+            message: res.errMsg || '操作失败！请重试',
+            type: 'error',
+        });
+    }
+
+}
+async function send(row) {
+    const { sno, salaryNo } = row
+    const res = await updateSalaryStatus({ sno, salaryNo, paystatus: SalaryStatus['已发放'].toString() })
+    if (res.success) {
+        ElMessage({
+            message: '操作成功！',
+            type: 'success',
+        });
+        cancel()
+        await getData();
+    } else {
+        ElMessage({
+            message: res.errMsg || '操作失败！请重试',
             type: 'error',
         });
     }

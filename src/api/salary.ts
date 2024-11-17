@@ -38,9 +38,9 @@ export function updateSalary(obj) {
     .then((res) => res.data)
     .catch((err) => err.data);
 }
-export function updateSalaryStatus(status) {
+export function updateSalaryStatus(obj) {
   return axios
-    .delete(`http://localhost:8081/salary/updateSalaryStatus/${status}`)
+    .put(`http://localhost:8081/salary/updateSalaryStatus/`,obj)
     .then((res) => res.data)
     .catch((err) => err.data);
 }
