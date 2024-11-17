@@ -6,45 +6,41 @@
                     <h2 class="mb-2">人事管理系统</h2>
                 </div>
                 <el-menu active-text-color="#ffd04b" :router="true"
-                    :default-active="user.role === Role['应聘者'] ? '/directory/recruit' : '/directory/attendance'"
+                    :default-active="$route.path"
                     background-color="#1155bc" class="menu" router text-color="#fff">
+                    <el-menu-item index="/directory/index">
+                        <el-icon>
+                            <HomeFilled />
+                        </el-icon>
+                        <span>首页</span>
+                    </el-menu-item>
                     <el-menu-item index="/directory/recruit" v-if="user.role === Role['应聘者']">
                         <el-icon>
                             <document />
                         </el-icon>
                         <span>招聘信息</span>
                     </el-menu-item>
-                    <el-menu-item index="/directory/resume">
+                    <el-menu-item index="/directory/resume" v-if="user.role === Role['应聘者']||user.role === Role['招聘助理']||user.role === Role['人事专员']">
                         <el-icon>
-                            <location />
+                            <Collection />
                         </el-icon>
                         <span>简历管理</span>
                     </el-menu-item>
-                    <el-menu-item index="/directory/interview">
+                    <el-menu-item index="/directory/interview" v-if="user.role === Role['技术部主管']||user.role === Role['人事经理']||user.role === Role['人事专员']">
                         <el-icon>
-                            <location />
+                            <Message />
                         </el-icon>
                         <span>面试管理</span>
                     </el-menu-item>
-                    <!-- <el-sub-menu index="2">
-                        <template #title>
-                            <el-icon>
-                                <location />
-                            </el-icon>
-                            <span>培训管理</span>
-                        </template>
-<el-menu-item index="/directory/plan">培训计划</el-menu-item>
-<el-menu-item index="/directory/edit">培训记录</el-menu-item>
-</el-sub-menu> -->
-                    <el-menu-item index="/directory/attendance" v-if="user.role !== Role['应聘者']">
+                    <el-menu-item index="/directory/staffLeave"  v-if="user.role === Role['员工']||user.role === Role['技术部主管']||user.role === Role['人事专员']">
                         <el-icon>
-                            <document />
+                            <Watch />
                         </el-icon>
                         <span>假勤管理</span>
                     </el-menu-item>
-                    <el-menu-item index="/directory/salary">
+                    <el-menu-item index="/directory/salary"  v-if="user.role === Role['员工']||user.role === Role['财政专员']||user.role === Role['人事专员']">
                         <el-icon>
-                            <setting />
+                            <Money />
                         </el-icon>
                         <span>薪资管理</span>
                     </el-menu-item>

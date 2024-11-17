@@ -45,7 +45,7 @@
                     </template>
                 </el-table-column>
                 <el-table-column prop="payTime" label="发放日期" width="120" />
-                <el-table-column label="操作" width="120">
+                <el-table-column fixed="right" label="操作" width="120">
                     <template #default="scope">
                         <el-button v-if="user.role === Role['人事专员'] && scope.row.payStatus === SalaryStatus['待核算'].toString()"
                             type="primary" size="small" @click="openDialog(scope.row)">

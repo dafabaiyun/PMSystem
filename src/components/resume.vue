@@ -5,7 +5,7 @@
                 <el-form-item label="部门">
                     <el-input v-model="form.recDep" placeholder="请输入部门" />
                 </el-form-item>
-                <el-form-item label="简历状态">
+                <el-form-item label="简历状态" v-if="user.role === Role['人事专员']">
                     <el-select v-model="form.resStatus" placeholder="请选择简历状态">
                         <el-option label="待筛选" value="3" />
                         <el-option label="面试意向确认" value="5" />

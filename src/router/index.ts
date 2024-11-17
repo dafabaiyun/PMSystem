@@ -16,7 +16,11 @@ const router = createRouter({
       component: () => import("../components/directory.vue"),
       children: [
         {
-          path: "attendance",
+          path: "index",
+          component: () => import("../components/index.vue"),
+        },
+        {
+          path: "staffLeave",
           component: () => import("../components/staffLeave.vue"),
         },
         {

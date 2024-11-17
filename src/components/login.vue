@@ -167,7 +167,7 @@ const loginSuccess = ref(false);
 
 async function chooseRole(role) {
   setRole(role);
-  router.push('/directory/attendance');
+  router.push('/directory/index');
 }
 </script>
 
