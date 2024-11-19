@@ -22,14 +22,14 @@ export function calculateSalary() {
 }
 export function getSalaryByDate(date) {
   return axios
-    .delete(`http://localhost:8081/salary/getSalaryByDate/${date}`)
-    .then((res) => res.data)
+    .get(`http://localhost:8081/salary/getSalaryByDate/${date}`)
+    .then((res) => res.data.data)
     .catch((err) => err.data);
 }
 export function getSalaryByStatus(status) {
   return axios
-    .delete(`http://localhost:8081/salary/getSalaryByStatus/${status}`)
-    .then((res) => res.data)
+    .get(`http://localhost:8081/salary/getSalaryByStatus/${status}`)
+    .then((res) => res.data.data)
     .catch((err) => err.data);
 }
 export function updateSalary(obj) {
@@ -46,7 +46,7 @@ export function updateSalaryStatus(obj) {
 }
 export function getSalaryBySno(sno) {
   return axios
-    .delete(`http://localhost:8081/salary/getSalaryBySno/${sno}`)
-    .then((res) => res.data)
+    .get(`http://localhost:8081/salary/getSalaryBySno/${sno}`)
+    .then((res) => res.data.data)
     .catch((err) => err.data);
 }
