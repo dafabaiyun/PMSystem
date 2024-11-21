@@ -1,7 +1,7 @@
 <template>
     <div>
         <el-container>
-            <el-aside width="200px">
+            <el-aside width="200px" class="aside">
                 <div class="logo">
                     <h2 class="mb-2">人事管理系统</h2>
                 </div>
@@ -171,5 +171,8 @@ const signIn = computed(() => {
 
 .roleName {
     margin: 0 10px;
+}
+.aside{
+    position: fixed;
 }
 </style>
