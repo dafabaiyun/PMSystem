@@ -51,17 +51,17 @@
                             type="primary" size="small" @click="openDialog(scope.row)">
                             填写薪资
                         </el-button>
-                        <el-button v-if="user.role === Role['财政专员'] && scope.row.payStatus === SalaryStatus['待审批'].toString()"
+                        <el-button v-if="user.role === Role['财政专员'] && scope.row.payStatus === SalaryStatus['待审核'].toString()"
                             type="primary" size="small" @click="pass(scope.row, true)">
-                            审批通过
+                            审核通过
                         </el-button>
-                        <el-button v-if="user.role === Role['财政专员'] && scope.row.payStatus === SalaryStatus['待审批'].toString()"
+                        <el-button v-if="user.role === Role['财政专员'] && scope.row.payStatus === SalaryStatus['待审核'].toString()"
                             type="primary" size="small" @click="pass(scope.row, false)">
-                            审批不通过
+                            审核不通过
                         </el-button>
                         <el-button v-if="user.role === Role['财政专员'] && scope.row.payStatus === SalaryStatus['待发放'].toString()"
                             type="primary" size="small" @click="send(scope.row)">
-                            审批不通过
+                            审核不通过
                         </el-button>
                         <el-button v-if="user.role === Role['员工'] && scope.row.payStatus === SalaryStatus['待确认'].toString()"
                             type="primary" size="small" @click="pass(scope.row, true)">
@@ -74,7 +74,7 @@
 
                         <span v-if="user.role === Role['员工'] && scope.row.payStatus !== SalaryStatus['待确认'].toString()" type="primary"
                             size="small">
-                            审批中...
+                            审核中...
                         </span>
                     </template>
                 </el-table-column>
@@ -124,6 +124,7 @@ async function search() {
     if (form.payStatus) {
         currentStatus.value = form.payStatus;
         salaryData.value = await getSalaryByStatus(form.payStatus)
+        console.log(form.payStatus)
     } else if (form.salaryNo) {
         salaryData.value = await getSalaryByDate(form.salaryNo)
     } else {
@@ -140,6 +141,7 @@ async function getData() {
         salaryData.value = await getSalaryByStatus(SalaryStatus['待审核'].toString())
     }
     else {
+        console.log(user.userid)
         salaryData.value = await getSalaryBySno(user.userid);
     }
     loading.value = false;

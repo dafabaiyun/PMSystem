@@ -113,7 +113,7 @@ async function getData() {
     if (roleId === Role['人事专员']) {
         tableData.value = await getInterviewByPeriod(Period['一面'])
     }
-    else if (roleId === Role['技术部主管']) {
+    else if (roleId === Role['主管']) {
         tableData.value = await getInterviewByPeriod(Period['二面'])
     }
     else {

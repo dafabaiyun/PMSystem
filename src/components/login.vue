@@ -37,7 +37,7 @@
         <el-button type="primary" @click="chooseRole(1)">员工</el-button>
         <el-button type="primary" @click="chooseRole(2)">人事专员</el-button>
         <el-button type="primary" @click="chooseRole(3)">财政专员</el-button>
-        <el-button type="primary" @click="chooseRole(4)">技术部主管</el-button>
+        <el-button type="primary" @click="chooseRole(4)">主管</el-button>
         <el-button type="primary" @click="chooseRole(5)">人事经理</el-button>
         <el-button type="primary" @click="chooseRole(6)">招聘助理</el-button>
         <el-button type="primary" @click="chooseRole(7)">应聘者</el-button> -->
