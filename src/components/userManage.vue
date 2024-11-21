@@ -165,7 +165,7 @@ const roleOptions = [
     { roleId: 1, roleName: "员工" },
     { roleId: 2, roleName: "人事专员" },
     { roleId: 3, roleName: "财政专员" },
-    { roleId: 4, roleName: "主管" },
+    { roleId: 4, roleName: "技术部主管" },
     { roleId: 5, roleName: "人事经理" },
     { roleId: 6, roleName: "招聘助理" },
     { roleId: 7, roleName: "应聘者" },

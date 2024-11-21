@@ -125,7 +125,7 @@ async function getData() {
     if(user.role===Role['员工']){
         attendanceData.value=await getStaffLeaveBySno(user.userid);
     }
-    else if(user.role===Role['主管']){
+    else if(user.role===Role['技术部主管']){
         attendanceData.value=await getStaffLeaveByStatus(Leave['待审核'].toString())
     }
     else{
@@ -135,7 +135,7 @@ async function getData() {
 }
 async function pass(leaveNo, passFlag) {
     loading.value = true;
-    if (user.role === Role['部门主管']) {
+    if (user.role === Role['技术部主管']) {
         // 调用审核接口
         passFlag ? await updateStaffLeaveStatus({ leaveNo, appStatus: Leave['待审核'].toString() }) : await updateStaffLeaveStatus({ leaveNo, appStatus: Status['未通过'] })
     }

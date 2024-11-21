@@ -26,13 +26,13 @@
                         </el-icon>
                         <span>简历管理</span>
                     </el-menu-item>
-                    <el-menu-item index="/directory/interview" v-if="user.role === Role['主管']||user.role === Role['人事经理']||user.role === Role['人事专员']">
+                    <el-menu-item index="/directory/interview" v-if="user.role === Role['技术部主管']||user.role === Role['人事经理']||user.role === Role['人事专员']">
                         <el-icon>
                             <Message />
                         </el-icon>
                         <span>面试管理</span>
                     </el-menu-item>
-                    <el-menu-item index="/directory/staffLeave"  v-if="user.role === Role['员工']||user.role === Role['主管']||user.role === Role['人事专员']">
+                    <el-menu-item index="/directory/staffLeave"  v-if="user.role === Role['员工']||user.role === Role['技术部主管']||user.role === Role['人事专员']">
                         <el-icon>
                             <Watch />
                         </el-icon>
