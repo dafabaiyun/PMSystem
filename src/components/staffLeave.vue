@@ -127,6 +127,7 @@ async function getData() {
     }
     else if(user.role===Role['技术部主管']){
         attendanceData.value=await getStaffLeaveByStatus(Leave['待审核'].toString())
+        attendanceData.value=attendanceData.value.filter(item=>item.recDep==='技术部')
     }
     else{
         attendanceData.value=await getStaffLeaveByStatus(Leave['待审核'].toString())
@@ -137,11 +138,11 @@ async function pass(leaveNo, passFlag) {
     loading.value = true;
     if (user.role === Role['技术部主管']) {
         // 调用审核接口
-        passFlag ? await updateStaffLeaveStatus({ leaveNo, appStatus: Leave['待审核'].toString() }) : await updateStaffLeaveStatus({ leaveNo, appStatus: Status['未通过'] })
+        passFlag ? await updateStaffLeaveStatus({ leaveNo, appStatus: Leave['待审核'].toString() }) : await updateStaffLeaveStatus({ leaveNo, appStatus: Leave['未通过'].toString() })
     }
     else if (user.role === Role['人事专员']) {
         // 调用筛选接口
-        passFlag ? await updateStaffLeaveStatus({ leaveNo, appStatus: Leave['已通过'].toString()}) : await updateStaffLeaveStatus({ leaveNo, appStatus: Status['未通过'] })
+        passFlag ? await updateStaffLeaveStatus({ leaveNo, appStatus: Leave['已通过'].toString()}) : await updateStaffLeaveStatus({ leaveNo, appStatus: Leave['未通过'].toString() })
     }
     await getData();
 }

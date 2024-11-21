@@ -111,14 +111,14 @@ async function getData() {
     loading.value = true
     const roleId = user.role;
     if (roleId === Role['人事专员']) {
-        tableData.value = await getInterviewByPeriod(Period['一面'])
+        tableData.value = await getInterviewByPeriod(Period['一面'].toString())
     }
     else if (roleId === Role['技术部主管']) {
-        tableData.value = await getInterviewByPeriod(Period['二面'])
+        tableData.value = await getInterviewByPeriod(Period['二面'].toString())
         tableData.value=tableData.value.filter(item=>item.recDep==='技术部')
     }
     else {
-        tableData.value = await getInterviewByPeriod(Period['三面'])
+        tableData.value = await getInterviewByPeriod(Period['三面'].toString())
     }
     loading.value = false;
 }
