@@ -110,7 +110,7 @@
 
         <el-dialog v-model="interVisible" title="创建面试信息" width="500" :before-close="CloseInter">
             <el-form :model="interForm" label-width="80px" style="max-width: 1200px" class="interDialog">
-                <el-form-item label="面试地点">
+                <el-form-item label="面试时间">
                     <el-config-provider :locale="zhCn">
                         <el-date-picker :locale="zhCn" v-model="interForm.interTime" type="datetime" placeholder="请选择面试时间"
                             value-format="YYYY-MM-DDTHH:MM:ss" />
@@ -329,6 +329,8 @@ async function submitInter() {
             type: 'error',
         });
     }
+    CloseInter()
+    await getData();
 }
 </script>
 
