@@ -45,7 +45,7 @@
                 </el-table-column>
                 <el-table-column fixed="right" label="操作" min-width="250">
                     <template #default="scope">
-                        <el-button v-if="scope.row.interStatus === InterStatus['已通过面试']" type="primary" size="small"
+                        <el-button v-if="scope.row.interStatus === InterStatus['已通过面试'].toString()" type="primary" size="small"
                             @click="send(scope.row)">发送录用通知</el-button>
                         <div v-else>
                             <el-button type="primary" size="small" @click="pass(scope.row, true)">通过</el-button>
@@ -80,14 +80,14 @@ async function pass(row, passFlag) {
     let res;
     if (user.role === Role['部门主管']) {
         // 调用审核接口
-        res = passFlag ? await updateinterview({ ...row, interPeriod: Period['三面'] }) : await updateinterview({ ...row, interStatus: InterStatus['未通过'] })
+        res = passFlag ? await updateinterview({ ...row, interPeriod: Period['三面'].toString() }) : await updateinterview({ ...row, interStatus: InterStatus['未通过'].toString() })
     }
     else if (user.role === Role['人事专员']) {
         // 调用筛选接口
-        res = passFlag ? await updateinterview({ ...row, interPeriod: Period['二面'] }) : await updateinterview({ ...row, interStatus: InterStatus['未通过'] })
+        res = passFlag ? await updateinterview({ ...row, interPeriod: Period['二面'].toString() }) : await updateinterview({ ...row, interStatus: InterStatus['未通过'].toString() })
     }
     else {
-        res = passFlag ? await updateinterview({ ...row, interStatus: InterStatus['已通过面试'] }) : await updateinterview({ ...row, interStatus: InterStatus['未通过'] })
+        res = passFlag ? await updateinterview({ ...row, interStatus: InterStatus['已通过面试'].toString() }) : await updateinterview({ ...row, interStatus: InterStatus['未通过'].toString() })
 
     }
     if (res.success) {
@@ -124,7 +124,7 @@ async function getData() {
 
 async function send(row) {
     loading.value = true;
-    const res = await updateinterview({ ...row, interStatus: InterStatus['已发录用函'] })
+    const res = await updateinterview({ ...row, interStatus: InterStatus['已发录用函'].toString() })
     if (res.success) {
         ElMessage({
             message: '操作成功！',

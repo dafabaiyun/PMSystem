@@ -36,7 +36,7 @@
                         <el-icon>
                             <Watch />
                         </el-icon>
-                        <span>假勤管理</span>
+                        <span>请假管理</span>
                     </el-menu-item>
                     <el-menu-item index="/directory/salary"  v-if="user.role === Role['员工']||user.role === Role['财政专员']||user.role === Role['人事专员']">
                         <el-icon>
@@ -173,6 +173,6 @@ const signIn = computed(() => {
     margin: 0 10px;
 }
 .aside{
-    position: fixed;
+    height: 100%;
 }
 </style>
