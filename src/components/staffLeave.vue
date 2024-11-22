@@ -2,15 +2,6 @@
     <div>
         <div class="search">
             <el-form :model="searchForm" label-width="auto" style="max-width: 1200px">
-                <el-form-item label="请假状态" v-if="user.role === Role['员工']">
-                    <el-select v-model="searchForm.appStatus" placeholder="请选择请假状态">
-                        <el-option label="待审核" value="1" />
-                        <el-option label="待审批" value="2" />
-                        <el-option label="未通过" value="3" />
-                        <el-option label="已通过" value="4" />
-                        <el-option label="取消请假" value="5" />
-                    </el-select>
-                </el-form-item>
                 <el-form-item label="部门">
                     <el-input v-model="searchForm.recDep" placeholder="请输入部门" />
                 </el-form-item>
@@ -85,12 +76,11 @@
 import { reactive, computed, ref, onMounted } from 'vue';
 import { useUserStore } from '../stores/user';
 import { Role, Status } from '@/api/user';
-import { getStaffLeaveByDep, getStaffLeaveBySno, getStaffLeaveByStatus, insertStaffLeave, Leave, updateStaffLeaveStatus } from '@/api/staffLeave';
+import { getStaffLeaveByDep, getStaffLeaveBySno, getStaffLeaveByStatus, insertStaffLeave, Leave, updateStaffLeave, updateStaffLeaveStatus } from '@/api/staffLeave';
 import { ElMessage } from 'element-plus'
 const { user } = useUserStore()
 const searchForm = reactive({
     recDep: '',
-    appStatus: '',
 });
 
 const attendanceData = ref([]);
@@ -102,6 +92,7 @@ function leaveFun() {
         date: '',
         leaveType: '',
         reason: '',
+        leaveNo:'',
     }
 }
 async function search() {
@@ -128,10 +119,10 @@ async function getData() {
     }
     else if (user.role === Role['技术部主管']) {
         attendanceData.value = await getStaffLeaveByStatus(Leave['待审核'].toString())
-        attendanceData.value = attendanceData.value.filter(item => item.recDep === '技术部')
+        attendanceData.value = attendanceData.value.filter(item => item.sdep === '技术部')
     }
     else {
-        attendanceData.value = await getStaffLeaveByStatus(Leave['待审核'].toString())
+        attendanceData.value = await getStaffLeaveByStatus(Leave['待审批'].toString())
     }
     loading.value = false;
 }
@@ -154,11 +145,10 @@ function create() {
     dialogVisible.value = true;
 }
 async function submit() {
-    const { leaveType, reason, date } = leaveForm;
+    const { leaveType, reason, date, leaveNo } = leaveForm;
+    console.log(date);
     if (creating) {
         // 创建请假信息
-        console.log(date);
-        console.log("开始写请假接口");
 
         const res = await insertStaffLeave({
             sno: user.userid,
@@ -181,6 +171,24 @@ async function submit() {
     }
     else {
         // 修改
+        const res = await updateStaffLeave({
+            startDate: date[0],
+            endDate: date[1],
+            leaveType,
+            reason,
+            leaveNo
+        })
+        if (res.success) {
+            ElMessage({
+                message: '修改成功！',
+                type: 'success',
+            });
+        } else {
+            ElMessage({
+                message: res.errMsg || '修改失败！请重试',
+                type: 'error',
+            });
+        }
     }
     cancelCreate()
     await getData()
@@ -195,9 +203,22 @@ function fix(row) {
     dialogVisible.value = true;
 
 }
-function cancel(leaveNo) {
-    dialogVisible.value = false;
-    Object.assign(leaveForm, leaveFun());
+async function cancel(leaveNo) {
+    const res = await updateStaffLeaveStatus({
+        leaveNo,
+        appStatus: Leave['取消请假'].toString()
+    })
+    if (res.success) {
+        ElMessage({
+            message: '取消成功！',
+            type: 'success',
+        });
+    } else {
+        ElMessage({
+            message: res.errMsg || '取消失败！请重试',
+            type: 'error',
+        });
+    }
 }
 </script>
 
