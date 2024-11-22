@@ -29,6 +29,7 @@
             <el-table :data="tableData" style="width: 100%" v-loading="loading">
                 <el-table-column prop="resName" label="姓名" width="80" />
                 <el-table-column prop="resPhone" label="电话" width="120" />
+                <el-table-column prop="recDep" label="部门" width="80" />
                 <el-table-column prop="interTime" label="面试时间" width="180" />
                 <el-table-column prop="interDest" label="面试地点" width="100" />
                 <el-table-column prop="interPeriod" label="面试阶段" width="100">
@@ -78,7 +79,7 @@ const tableData = ref([]);
 async function pass(row, passFlag) {
     loading.value = true;
     let res;
-    if (user.role === Role['部门主管']) {
+    if (user.role === Role['技术部主管']) {
         // 调用审核接口
         res = passFlag ? await updateinterview({ ...row, interPeriod: Period['三面'].toString() }) : await updateinterview({ ...row, interStatus: InterStatus['未通过'].toString() })
     }
