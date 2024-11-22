@@ -38,11 +38,12 @@
                     </template>
                 </el-table-column>
                 <el-table-column prop="appTime" label="申请时间" width="100" />
-                <el-table-column label="操作" fixed="right"
-                    v-if="user.role === Role['员工']">
+                <el-table-column label="操作" fixed="right" v-if="user.role === Role['员工']">
                     <template #default="scope">
-                        <el-button v-if="scope.row.appStatus === Leave['未通过'].toString()" type="primary" size="small" @click="fix(scope.row)">修改请假信息</el-button>
-                        <el-button v-else type="primary" size="small" @click="cancel(scope.row.leaveNo)">取消请假</el-button>
+                        <el-button v-if="scope.row.appStatus === Leave['未通过'].toString()" type="primary" size="small"
+                            @click="fix(scope.row)">修改请假信息</el-button>
+                        <el-button v-else type="primary" size="small"
+                            @click="cancel(scope.row.leaveNo)">取消请假</el-button>
                     </template>
                 </el-table-column>
                 <el-table-column label="操作" fixed="right" v-else>
@@ -67,15 +68,15 @@
                 <el-form-item label="请假事由">
                     <el-input v-model="leaveForm.reason" placeholder="请输入请假事由" type="textarea" />
                 </el-form-item>
-                <template #footer>
-                    <div class="dialog-footer">
-                        <el-button @click="cancelCreate">取消</el-button>
-                        <el-button type="primary" @click="submit">
-                            确认
-                        </el-button>
-                    </div>
-                </template>
             </el-form>
+            <template #footer>
+                <div class="dialog-footer">
+                    <el-button @click="cancelCreate">取消</el-button>
+                    <el-button type="primary" @click="submit">
+                        确认
+                    </el-button>
+                </div>
+            </template>
         </el-dialog>
     </div>
 </template>
@@ -103,17 +104,17 @@ function leaveFun() {
         reason: '',
     }
 }
-async function search(){
-    loading.value=true;
-    if(searchForm.recDep){
-        attendanceData.value=await getStaffLeaveByDep(searchForm.recDep)
+async function search() {
+    loading.value = true;
+    if (searchForm.recDep) {
+        attendanceData.value = await getStaffLeaveByDep(searchForm.recDep)
     }
-    else{
-        attendanceData.value=await getStaffLeaveBySno(searchForm.appStatus)
+    else {
+        attendanceData.value = await getStaffLeaveBySno(searchForm.appStatus)
     }
-    loading.value=false;
+    loading.value = false;
 }
-async function reset(){
+async function reset() {
     await getData();
 }
 const loading = ref(false)
@@ -121,16 +122,16 @@ onMounted(async () => {
     await getData();
 })
 async function getData() {
-    loading.value=true;
-    if(user.role===Role['员工']){
-        attendanceData.value=await getStaffLeaveBySno(user.userid);
+    loading.value = true;
+    if (user.role === Role['员工']) {
+        attendanceData.value = await getStaffLeaveBySno(user.userid);
     }
-    else if(user.role===Role['技术部主管']){
-        attendanceData.value=await getStaffLeaveByStatus(Leave['待审核'].toString())
-        attendanceData.value=attendanceData.value.filter(item=>item.recDep==='技术部')
+    else if (user.role === Role['技术部主管']) {
+        attendanceData.value = await getStaffLeaveByStatus(Leave['待审核'].toString())
+        attendanceData.value = attendanceData.value.filter(item => item.recDep === '技术部')
     }
-    else{
-        attendanceData.value=await getStaffLeaveByStatus(Leave['待审核'].toString())
+    else {
+        attendanceData.value = await getStaffLeaveByStatus(Leave['待审核'].toString())
     }
     loading.value = false;
 }
@@ -142,7 +143,7 @@ async function pass(leaveNo, passFlag) {
     }
     else if (user.role === Role['人事专员']) {
         // 调用筛选接口
-        passFlag ? await updateStaffLeaveStatus({ leaveNo, appStatus: Leave['已通过'].toString()}) : await updateStaffLeaveStatus({ leaveNo, appStatus: Leave['未通过'].toString() })
+        passFlag ? await updateStaffLeaveStatus({ leaveNo, appStatus: Leave['已通过'].toString() }) : await updateStaffLeaveStatus({ leaveNo, appStatus: Leave['未通过'].toString() })
     }
     await getData();
 }
@@ -184,8 +185,8 @@ async function submit() {
     cancelCreate()
     await getData()
 }
-function cancelCreate(){
-    Object.assign(leaveForm,leaveFun());
+function cancelCreate() {
+    Object.assign(leaveForm, leaveFun());
     creating.value = false;
     dialogVisible.value = false;
 }
